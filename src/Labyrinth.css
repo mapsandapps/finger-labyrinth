@@ -2,9 +2,7 @@ svg {
   display: block;
 }
 
-circle {
+.visible-circle {
   stroke: white;
   stroke-width: 5px;
-  /* offset-path set in JS */
-  /* offset-rotate: 0deg; if desired; doesn't matter for circle */
 }

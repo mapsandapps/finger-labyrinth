@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import "./Labyrinth.css";
 
 const PATH =
@@ -13,6 +13,21 @@ const ANIMATION_OPTIONS = {
 function Labyrinth() {
   const [pathAnimation, setPathAnimation] = useState<Animation>();
   const [circleAnimation, setCircleAnimation] = useState<Animation>();
+  const currentLocationRef = useRef<SVGCircleElement>(null);
+
+  const setIconVisible = () => {
+    if (currentLocationRef.current) {
+      currentLocationRef.current.setAttribute("fill", "steelblue");
+      currentLocationRef.current.style.stroke = "white";
+    }
+  };
+
+  const setIconInvisible = () => {
+    if (currentLocationRef.current) {
+      currentLocationRef.current.setAttribute("fill", "transparent");
+      currentLocationRef.current.style.stroke = "transparent";
+    }
+  };
 
   const onHoldButton = () => {
     if (!pathAnimation || !circleAnimation) return;
@@ -22,6 +37,7 @@ function Labyrinth() {
     if (isAnimating) {
       // no-op: if already animating, do nothing
     } else {
+      setIconInvisible();
       // play/unpause path animation
       pathAnimation.play();
       circleAnimation.play();
@@ -52,7 +68,7 @@ function Labyrinth() {
 
       // when animation ends, prep everything to be restarted
       pathAnim.onfinish = () => {
-        // may want to advance here
+        setIconVisible();
       };
 
       setPathAnimation(pathAnim);
@@ -62,6 +78,7 @@ function Labyrinth() {
   const initCircle = useCallback((el: SVGCircleElement) => {
     if (el !== null) {
       el.style.offsetPath = `path("${PATH}")`;
+      // NOTE: could set offsetRotate here to `0deg` but not needed for a circle
 
       const circleAnim = el.animate(
         [{ offsetDistance: "0%" }, { offsetDistance: "100%" }],
@@ -83,21 +100,29 @@ function Labyrinth() {
         viewBox="0 0 960 960"
       >
         <g fill="none" fillRule="evenodd" transform="translate(12 13)">
+          <path stroke="lightgray" strokeWidth="40" d={PATH} />
           <path ref={initPath} stroke="#b58a47" strokeWidth="20" d={PATH} />
-          <circle ref={initCircle} r="20" fill="steelblue"></circle>
+          <g
+            ref={initCircle}
+            r="96"
+            fill="transparent"
+            onMouseDown={onHoldButton}
+            onMouseUp={onReleaseButton}
+            onMouseEnter={onHoldButton}
+            onMouseLeave={onReleaseButton}
+            onTouchStart={onHoldButton}
+            onTouchEnd={onReleaseButton}
+          >
+            <circle r="96" />
+            <circle
+              ref={currentLocationRef}
+              className="visible-circle"
+              r="20"
+              fill="steelblue"
+            />
+          </g>
         </g>
       </svg>
-
-      <button
-        onMouseDown={onHoldButton}
-        onMouseUp={onReleaseButton}
-        onMouseLeave={onReleaseButton}
-        onTouchStart={onHoldButton}
-        onTouchEnd={onReleaseButton}
-        type="button"
-      >
-        Click & hold button to animate
-      </button>
     </>
   );
 }
