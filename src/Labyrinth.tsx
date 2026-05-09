@@ -11,27 +11,29 @@ const ANIMATION_OPTIONS = {
 };
 
 function Labyrinth() {
-  const [playPauseButtonText, setPlayPauseButtonText] =
-    useState("Start animation");
   const [pathAnimation, setPathAnimation] = useState<Animation>();
   const [circleAnimation, setCircleAnimation] = useState<Animation>();
 
-  const onPlayPause = () => {
+  const onHoldButton = () => {
     if (!pathAnimation || !circleAnimation) return;
 
     const isAnimating = pathAnimation?.playState === "running";
 
     if (isAnimating) {
-      // pause path animation
-      setPlayPauseButtonText("Start animation");
-      pathAnimation.pause();
-      circleAnimation.pause();
+      // no-op: if already animating, do nothing
     } else {
       // play/unpause path animation
-      setPlayPauseButtonText("Pause animation");
       pathAnimation.play();
       circleAnimation.play();
     }
+  };
+
+  const onReleaseButton = () => {
+    if (!pathAnimation || !circleAnimation) return;
+
+    // pause path animation
+    pathAnimation.pause();
+    circleAnimation.pause();
   };
 
   const initPath = useCallback((el: SVGPathElement) => {
@@ -50,7 +52,7 @@ function Labyrinth() {
 
       // when animation ends, prep everything to be restarted
       pathAnim.onfinish = () => {
-        setPlayPauseButtonText("Start animation");
+        // may want to advance here
       };
 
       setPathAnimation(pathAnim);
@@ -86,8 +88,15 @@ function Labyrinth() {
         </g>
       </svg>
 
-      <button onClick={onPlayPause} type="button">
-        {playPauseButtonText}
+      <button
+        onMouseDown={onHoldButton}
+        onMouseUp={onReleaseButton}
+        onMouseLeave={onReleaseButton}
+        onTouchStart={onHoldButton}
+        onTouchEnd={onReleaseButton}
+        type="button"
+      >
+        Click & hold button to animate
       </button>
     </>
   );
