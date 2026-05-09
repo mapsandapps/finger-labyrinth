@@ -59,6 +59,8 @@ function Labyrinth() {
 
   const initCircle = useCallback((el: SVGCircleElement) => {
     if (el !== null) {
+      el.style.offsetPath = `path("${PATH}")`;
+
       const circleAnim = el.animate(
         [{ offsetDistance: "0%" }, { offsetDistance: "100%" }],
         ANIMATION_OPTIONS,

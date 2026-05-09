@@ -5,9 +5,6 @@ svg {
 circle {
   stroke: white;
   stroke-width: 5px;
-  /* TODO: store this path somewhere for reusability */
-  offset-path: path(
-    "M 512,64 a 192,192 0 0,1 192,192 a 192,192 0 0,1 -192,192 a 256,256 0 0,0 256,-256 a 320,320 0 0,1 -320,320 a 192,192 0 0,1 -192,-192 a 128,128 0 0,0 128,128 a 64,64 0 0,0 64,-64 a 64,64 0 0,1 64,-64 a 64,64 0 0,0 64,-64 a 64,64 0 0,0 -64,-64 a 64,64 0 0,0 -64,64 a 64,64 0 0,1 -64,64 a 128,128 0 0,1 -128,-128"
-  );
-  /* offset-rotate: 0deg; if desired */
+  /* offset-path set in JS */
+  /* offset-rotate: 0deg; if desired; doesn't matter for circle */
 }
