@@ -3,21 +3,30 @@ export interface LabyrinthData {
   path: string;
   pathColor?: string;
   travelingColor?: string;
+  backgroundColor?: string;
   pathWidth?: number;
+  viewBoxWidth?: number;
+  viewBoxHeight?: number;
 }
 
 export interface Labyrinth {
   path: string;
   pathColor: string;
   travelingColor: string;
+  backgroundColor: string;
   pathWidth: number;
+  viewBoxWidth: number;
+  viewBoxHeight: number;
 }
 
 export const defaultLabyrinth: Labyrinth = {
-  path: "M104 234V157C92 151.5 80.1919 139 80 120C79.8081 101 95 80 120 80C145 80 159.901 100.5 160 120C160.099 139.5 148 150.5 136 157V206.5C175 199.5 208.133 166 208 120C207.867 74 171.967 32 120 32C68.0333 32 32 75 32 120C32 165 64 189.5 72 194V174C72 174 47.8834 156.5 48 120C48.1166 83.5 76.5 48 120 48C163.5 48 192.155 84 192 120C191.845 156 166 179 152 184V166C160 159 176 148 176 120C176 92 154 64 120 64C86 64 64 92 64 120C64 148 80 160.5 88 166V219C57.5 210 16 176 16 120C16 64 60.5 16 120 16C179.5 16 224 64 224 120C224 176 177 224 120 224V120",
+  path: "M112 237V159.5C100.5 155 88.1919 142 88 123C87.8081 104 103 83 128 83C153 83 167.901 103.5 168 123C168.099 142.5 155 155 144 159.5V209.5C181.5 203 216.133 169 216 123C215.867 77 179.967 35 128 35C76.0333 35 40 78 40 123C40 168 71.5 191 80 196.5V176.6C71.5 169.1 56.3889 150.997 56 123C55.5069 87.5 85 51 128 51C171 51 200.155 87 200 123C199.845 159 174 182 160 187V168.8C167 164.1 184 149 184 123C184 95 161.5 67 128 67C94.5 67 72 95 72 123C72 150 90.5 165.5 96 169V221.8C63.5 212.5 24 177 24 123C24 69 68.5 19 128 19C187.5 19 232 67 232 123C232 185.5 179 228 128 227V123",
   pathColor: "white",
   travelingColor: "#b58a47",
+  backgroundColor: "black",
   pathWidth: 12,
+  viewBoxWidth: 256,
+  viewBoxHeight: 256,
 };
 
 export const labyrinths: LabyrinthData[] = [defaultLabyrinth];
