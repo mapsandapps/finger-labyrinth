@@ -42,9 +42,13 @@ export default function Labyrinth() {
     };
   };
 
-  const swapCircleColor = () => {
+  const swapCircleColor = (direction: Direction) => {
     if (currentLocationRef.current) {
-      currentLocationRef.current.setAttribute("fill", pathColor);
+      if (direction === "in") {
+        currentLocationRef.current.setAttribute("fill", travelingColor);
+      } else {
+        currentLocationRef.current.setAttribute("fill", pathColor);
+      }
     }
   };
 
@@ -88,7 +92,6 @@ export default function Labyrinth() {
     if (isAnimating) {
       // no-op: if already animating, do nothing
     } else {
-      swapCircleColor();
       // play/unpause path animation
       pathAnimation.play();
       circleAnimation.play();
@@ -125,8 +128,9 @@ export default function Labyrinth() {
 
         // when animation ends, prep everything to be restarted
         pathAnim.onfinish = () => {
-          setDirection(direction === "in" ? "out" : "in");
-          swapCircleColor();
+          const newDirection = direction === "in" ? "out" : "in";
+          setDirection(newDirection);
+          swapCircleColor(newDirection);
         };
 
         setPathAnimation(pathAnim);
