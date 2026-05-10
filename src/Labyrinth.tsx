@@ -1,11 +1,11 @@
 import { useCallback, useRef, useState } from "react";
 import "./Labyrinth.css";
+import { labyrinths, defaultLabyrinth, type Labyrinth } from "./labyrinths";
 
 type Direction = "in" | "out";
 
-const PATH =
-  "M 512,64 a 192,192 0 0,1 192,192 a 192,192 0 0,1 -192,192 a 256,256 0 0,0 256,-256 a 320,320 0 0,1 -320,320 a 192,192 0 0,1 -192,-192 a 128,128 0 0,0 128,128 a 64,64 0 0,0 64,-64 a 64,64 0 0,1 64,-64 a 64,64 0 0,0 64,-64 a 64,64 0 0,0 -64,-64 a 64,64 0 0,0 -64,64 a 64,64 0 0,1 -64,64 a 128,128 0 0,1 -128,-128";
-const SPEED = 3.5;
+const currentLabyrinth = labyrinths[0];
+const SPEED = 70; // 0 - 100 (technically 0-600)
 
 function Labyrinth() {
   const [direction, setDirection] = useState<Direction>("in");
@@ -13,11 +13,16 @@ function Labyrinth() {
   const [circleAnimation, setCircleAnimation] = useState<Animation>();
   const currentLocationRef = useRef<SVGCircleElement>(null);
 
+  const labyrinthSetup: Labyrinth = {
+    ...defaultLabyrinth,
+    ...currentLabyrinth,
+  };
+
   const getAnimationOptions = (): KeyframeAnimationOptions => {
     const pathLength = (
       document.querySelector("path") as SVGPathElement
     ).getTotalLength();
-    const duration = pathLength ? pathLength * SPEED : 10000;
+    const duration = pathLength ? pathLength * (600 / SPEED) : 10000;
 
     return {
       duration,
@@ -28,16 +33,15 @@ function Labyrinth() {
 
   const setIconVisible = () => {
     if (currentLocationRef.current) {
-      currentLocationRef.current.setAttribute("fill", "steelblue");
-      currentLocationRef.current.style.stroke = "white";
+      currentLocationRef.current.setAttribute("fill", labyrinthSetup.pathColor);
     }
   };
 
   const setIconInvisible = () => {
-    if (currentLocationRef.current) {
-      currentLocationRef.current.setAttribute("fill", "transparent");
-      currentLocationRef.current.style.stroke = "transparent";
-    }
+    // if (currentLocationRef.current) {
+    //   currentLocationRef.current.setAttribute("fill", "transparent");
+    //   currentLocationRef.current.style.stroke = "transparent";
+    // }
   };
 
   const onHoldButton = () => {
@@ -99,7 +103,7 @@ function Labyrinth() {
   const initCircle = useCallback(
     (el: SVGCircleElement) => {
       if (el !== null) {
-        el.style.offsetPath = `path("${PATH}")`;
+        el.style.offsetPath = `path("${labyrinthSetup.path}")`;
         // NOTE: could set offsetRotate here to `0deg` but not needed for a circle
 
         const keyframes =
@@ -121,16 +125,24 @@ function Labyrinth() {
     <>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="500"
-        height="500"
-        viewBox="0 0 960 960"
+        viewBox="0 0 240 240"
+        preserveAspectRatio="xMidYMid meet"
       >
-        <g fill="none" fillRule="evenodd" transform="translate(12 13)">
-          <path stroke="lightgray" strokeWidth="40" d={PATH} />
-          <path ref={initPath} stroke="#b58a47" strokeWidth="20" d={PATH} />
+        <g fill="none" fillRule="evenodd">
+          <path
+            stroke={labyrinthSetup.pathColor}
+            strokeWidth={labyrinthSetup.pathWidth}
+            d={labyrinthSetup.path}
+          />
+          <path
+            ref={initPath}
+            stroke={labyrinthSetup.travelingColor}
+            strokeWidth={labyrinthSetup.pathWidth}
+            d={labyrinthSetup.path}
+          />
           <g
             ref={initCircle}
-            r="96"
+            r="24"
             fill="transparent"
             onMouseDown={onHoldButton}
             onMouseUp={onReleaseButton}
@@ -139,12 +151,11 @@ function Labyrinth() {
             onTouchStart={onHoldButton}
             onTouchEnd={onReleaseButton}
           >
-            <circle r="96" />
+            <circle r="24" />
             <circle
               ref={currentLocationRef}
-              className="visible-circle"
-              r="20"
-              fill="steelblue"
+              r={labyrinthSetup.pathWidth / 2}
+              fill={labyrinthSetup.travelingColor}
             />
           </g>
         </g>
