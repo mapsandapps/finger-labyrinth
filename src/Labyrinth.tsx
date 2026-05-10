@@ -1,5 +1,6 @@
 import { type TouchEvent, useCallback, useRef, useState } from "react";
 import "./Labyrinth.css";
+import "animate.css";
 import { labyrinths, defaultLabyrinth, type Labyrinth } from "./labyrinths";
 import { isTouchOverCircle } from "./helpers";
 
@@ -7,6 +8,7 @@ type Direction = "in" | "out";
 
 const currentLabyrinth = labyrinths[0];
 const SPEED = 30; // 0 - 100 (technically 0-600)
+const ANIMATION_CLASS = "animate__heartBeat animate__slower";
 
 export default function Labyrinth() {
   const [direction, setDirection] = useState<Direction>("in");
@@ -44,6 +46,8 @@ export default function Labyrinth() {
 
   const swapCircleColor = (direction: Direction) => {
     if (currentLocationRef.current) {
+      currentLocationRef.current?.classList.add(ANIMATION_CLASS);
+
       if (direction === "in") {
         currentLocationRef.current.setAttribute("fill", travelingColor);
       } else {
@@ -95,6 +99,7 @@ export default function Labyrinth() {
       // play/unpause path animation
       pathAnimation.play();
       circleAnimation.play();
+      currentLocationRef.current?.classList.remove(ANIMATION_CLASS);
     }
   };
 
@@ -188,8 +193,9 @@ export default function Labyrinth() {
             onMouseLeave={onReleaseButton}
             onTouchStart={onHoldButton}
           >
-            <circle r="24" />
+            <circle r="36" />
             <circle
+              className={`animate__animated animate__infinite ${ANIMATION_CLASS}`}
               ref={currentLocationRef}
               r={pathWidth / 2}
               fill={travelingColor}
