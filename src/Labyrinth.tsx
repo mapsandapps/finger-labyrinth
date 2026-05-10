@@ -8,7 +8,7 @@ type Direction = "in" | "out";
 
 const currentLabyrinth = labyrinths[0];
 const SPEED = 30; // 0 - 100 (technically 0-600)
-const ANIMATION_CLASS = "animate__heartBeat animate__slower";
+const ANIMATION_CLASSES = ["animate__heartBeat", "animate__slower"];
 
 export default function Labyrinth() {
   const [direction, setDirection] = useState<Direction>("in");
@@ -46,7 +46,7 @@ export default function Labyrinth() {
 
   const swapCircleColor = (direction: Direction) => {
     if (currentLocationRef.current) {
-      currentLocationRef.current?.classList.add(ANIMATION_CLASS);
+      currentLocationRef.current?.classList.add(...ANIMATION_CLASSES);
 
       if (direction === "in") {
         currentLocationRef.current.setAttribute("fill", travelingColor);
@@ -99,7 +99,7 @@ export default function Labyrinth() {
       // play/unpause path animation
       pathAnimation.play();
       circleAnimation.play();
-      currentLocationRef.current?.classList.remove(ANIMATION_CLASS);
+      currentLocationRef.current?.classList.remove(...ANIMATION_CLASSES);
     }
   };
 
@@ -195,7 +195,7 @@ export default function Labyrinth() {
           >
             <circle r="36" />
             <circle
-              className={`animate__animated animate__infinite ${ANIMATION_CLASS}`}
+              className={`animate__animated animate__infinite ${ANIMATION_CLASSES.join(" ")}`}
               ref={currentLocationRef}
               r={pathWidth / 2}
               fill={travelingColor}
