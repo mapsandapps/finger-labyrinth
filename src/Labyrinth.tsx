@@ -7,7 +7,7 @@ type Direction = "in" | "out";
 const currentLabyrinth = labyrinths[0];
 const SPEED = 70; // 0 - 100 (technically 0-600)
 
-function Labyrinth() {
+export default function Labyrinth() {
   const [direction, setDirection] = useState<Direction>("in");
   const [pathAnimation, setPathAnimation] = useState<Animation>();
   const [circleAnimation, setCircleAnimation] = useState<Animation>();
@@ -163,5 +163,3 @@ function Labyrinth() {
     </>
   );
 }
-
-export default Labyrinth;
