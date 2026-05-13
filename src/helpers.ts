@@ -61,7 +61,10 @@ export const isFirstDayOfWeek = (date: Date) => {
   const locale = new Intl.Locale(navigator.language);
   // @ts-ignore locale.getWeekInfo() not supported in Firefox
   // 1 (monday) for en-GB, 7 (sunday) for en-US
-  const firstDayOfWeekForLocale = locale.getWeekInfo().firstDay || 7;
+  const firstDayOfWeekForLocale =
+    typeof Intl.Locale.prototype.getWeekInfo === "function"
+      ? locale.getWeekInfo().firstDay
+      : 7;
   const startOfWeekForDate = startOfWeek(date, {
     weekStartsOn: firstDayOfWeekForLocale,
   });
