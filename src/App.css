@@ -8,16 +8,17 @@
 
   .calendar {
     text-align: left;
-    a {
+    .door {
       width: 48px;
       min-width: 48px;
       display: inline-block;
       text-align: center;
-    }
 
-    svg {
-      max-width: 32px;
-      max-height: 32px;
+      &.clickable {
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+      }
     }
   }
 }

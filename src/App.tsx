@@ -1,11 +1,7 @@
 import "./App.css";
 import { Analytics } from "@vercel/analytics/react";
 import "./App.css";
-import {
-  getDatesInMonth,
-  getLabyrinthForDate,
-  isFirstDayOfWeek,
-} from "./helpers";
+import { getDatesInMonth, isFirstDayOfWeek } from "./helpers";
 import { formatDate, isAfter, isBefore, isToday } from "date-fns";
 import React, { useState } from "react";
 import Labyrinth from "./Labyrinth";
@@ -25,23 +21,19 @@ function App() {
             const isPast = isBefore(date, today);
             const isFuture = isAfter(date, today);
 
-            const { path, pathWidth, viewBoxWidth, viewBoxHeight } =
-              getLabyrinthForDate(date);
             return (
               <React.Fragment key={date.toDateString()}>
                 {isFirst && <br />}
                 {isFuture ? (
-                  <span>{formatDate(date, "d")}</span>
+                  <span className="door">{formatDate(date, "d")}</span>
                 ) : (
-                  <span onClick={() => setPuzzleDate(date)}>
+                  <span
+                    className="door clickable"
+                    onClick={() => setPuzzleDate(date)}
+                  >
                     {formatDate(date, "d")}
                   </span>
                 )}
-                <svg viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}>
-                  <g fill="none" fillRule="evenodd">
-                    <path d={path} stroke="black" strokeWidth={pathWidth / 4} />
-                  </g>
-                </svg>
               </React.Fragment>
             );
           })}
