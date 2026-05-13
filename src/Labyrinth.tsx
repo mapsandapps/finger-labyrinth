@@ -1,12 +1,11 @@
 import { type TouchEvent, useCallback, useRef, useState } from "react";
 import "./Labyrinth.css";
 import "animate.css";
-import { labyrinths, defaultLabyrinth, type Labyrinth } from "./labyrinths";
-import { isTouchOverCircle } from "./helpers";
+import { type Labyrinth } from "./labyrinths";
+import { getLabyrinthFromIndex, isTouchOverCircle } from "./helpers";
 
 type Direction = "in" | "out";
 
-const currentLabyrinth = labyrinths[0];
 const SPEED = 30; // 0 - 100 (technically 0-600)
 const ANIMATION_CLASSES = ["animate__heartBeat", "animate__slower"];
 
@@ -26,10 +25,7 @@ export default function Labyrinth() {
     pathWidth,
     viewBoxWidth,
     viewBoxHeight,
-  }: Labyrinth = {
-    ...defaultLabyrinth,
-    ...currentLabyrinth,
-  };
+  }: Labyrinth = getLabyrinthFromIndex(0);
 
   const getAnimationOptions = (): KeyframeAnimationOptions => {
     const pathLength = (
@@ -169,6 +165,7 @@ export default function Labyrinth() {
   return (
     <>
       <svg
+        className="labyrinth-svg"
         xmlns="http://www.w3.org/2000/svg"
         viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
         preserveAspectRatio="xMidYMid meet"

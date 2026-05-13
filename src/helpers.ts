@@ -6,6 +6,14 @@ import {
   startOfWeek,
   isSameDay,
 } from "date-fns";
+import { defaultLabyrinth, labyrinths } from "./labyrinths";
+
+export const getLabyrinthFromIndex = (index: number) => {
+  return {
+    ...defaultLabyrinth,
+    ...labyrinths[index],
+  };
+};
 
 const getCircleCenter = (el: SVGCircleElement) => {
   const rect = el.getBoundingClientRect();
@@ -32,6 +40,21 @@ export const getDatesInMonth = (today: Date) => {
     start: firstDay,
     end: lastDay,
   });
+};
+
+// used to rotate through all labyrinths
+const getIntegerForDate = (date: Date) => {
+  date.setHours(0, 0, 0, 0);
+
+  const msInDay = 24 * 60 * 60 * 1000;
+  return Math.floor(date.getTime() / msInDay);
+};
+
+export const getLabyrinthForDate = (date: Date) => {
+  const numberOfLabyrinths = labyrinths.length;
+  const intDate = getIntegerForDate(date);
+  const labyrinthIndex = intDate % numberOfLabyrinths;
+  return getLabyrinthFromIndex(labyrinthIndex);
 };
 
 export const isFirstDayOfWeek = (date: Date) => {

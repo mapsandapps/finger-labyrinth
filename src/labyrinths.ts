@@ -29,6 +29,7 @@ export const defaultLabyrinth: Labyrinth = {
   viewBoxHeight: 256,
 };
 
+// NOTE: should not be used except in getLabyrinthFromIndex
 export const labyrinths: LabyrinthData[] = [
   defaultLabyrinth,
   {

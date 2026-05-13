@@ -1,7 +1,11 @@
 import { Link } from "react-router";
 import "./App.css";
-import { getDatesInMonth, isFirstDayOfWeek } from "./helpers";
-import { formatDate } from "date-fns";
+import {
+  getDatesInMonth,
+  getLabyrinthForDate,
+  isFirstDayOfWeek,
+} from "./helpers";
+import { formatDate, isAfter, isBefore, isToday } from "date-fns";
 import React from "react";
 
 export default function Home() {
@@ -14,13 +18,29 @@ export default function Home() {
       <div className="calendar">
         {datesInMonth.map((date) => {
           const isFirst = isFirstDayOfWeek(date);
+          const isPresent = isToday(date);
+          const isPast = isBefore(date, today);
+          const isFuture = isAfter(date, today);
+
+          const { path, pathWidth, viewBoxWidth, viewBoxHeight } =
+            getLabyrinthForDate(date);
           return (
             <React.Fragment key={date.toDateString()}>
               {isFirst && <br />}
-              <Link to="/labyrinth">{formatDate(date, "d")}</Link>
+              {isFuture ? (
+                formatDate(date, "d")
+              ) : (
+                <Link to="/labyrinth">{formatDate(date, "d")}</Link>
+              )}
+              <svg viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}>
+                <g fill="none" fillRule="evenodd">
+                  <path d={path} stroke="black" strokeWidth={pathWidth / 4} />
+                </g>
+              </svg>
             </React.Fragment>
           );
         })}
+        <button>Today</button>
       </div>
     </div>
   );
