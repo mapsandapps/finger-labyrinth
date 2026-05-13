@@ -2,14 +2,20 @@ import { type TouchEvent, useCallback, useRef, useState } from "react";
 import "./Labyrinth.css";
 import "animate.css";
 import { type Labyrinth } from "./labyrinths";
-import { getLabyrinthFromIndex, isTouchOverCircle } from "./helpers";
+import { getLabyrinthForDate, isTouchOverCircle } from "./helpers";
 
 type Direction = "in" | "out";
 
 const SPEED = 30; // 0 - 100 (technically 0-600)
 const ANIMATION_CLASSES = ["animate__heartBeat", "animate__slower"];
 
-export default function Labyrinth() {
+interface LabyrinthProps {
+  puzzleDate?: Date;
+}
+
+export default function Labyrinth(props: LabyrinthProps) {
+  const { puzzleDate } = props;
+
   const [direction, setDirection] = useState<Direction>("in");
   const [pathAnimation, setPathAnimation] = useState<Animation>();
   const [circleAnimation, setCircleAnimation] = useState<Animation>();
@@ -25,7 +31,7 @@ export default function Labyrinth() {
     pathWidth,
     viewBoxWidth,
     viewBoxHeight,
-  }: Labyrinth = getLabyrinthFromIndex(0);
+  }: Labyrinth = getLabyrinthForDate(puzzleDate || new Date());
 
   const getAnimationOptions = (): KeyframeAnimationOptions => {
     const pathLength = (

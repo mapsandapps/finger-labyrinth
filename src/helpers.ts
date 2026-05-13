@@ -8,7 +8,7 @@ import {
 } from "date-fns";
 import { defaultLabyrinth, labyrinths } from "./labyrinths";
 
-export const getLabyrinthFromIndex = (index: number) => {
+const getLabyrinthFromIndex = (index: number) => {
   return {
     ...defaultLabyrinth,
     ...labyrinths[index],
