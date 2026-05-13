@@ -1,4 +1,11 @@
 import { type Touch } from "react";
+import {
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  startOfWeek,
+  isSameDay,
+} from "date-fns";
 
 const getCircleCenter = (el: SVGCircleElement) => {
   const rect = el.getBoundingClientRect();
@@ -15,4 +22,25 @@ export const isTouchOverCircle = (touch: Touch, el: SVGCircleElement) => {
   const dy = touch.clientY - y;
   console.log({ x, y, dx, dy });
   return Math.sqrt(dx * dx + dy * dy) <= radius;
+};
+
+export const getDatesInMonth = (today: Date) => {
+  const firstDay = startOfMonth(today);
+  const lastDay = endOfMonth(today);
+
+  return eachDayOfInterval({
+    start: firstDay,
+    end: lastDay,
+  });
+};
+
+export const isFirstDayOfWeek = (date: Date) => {
+  const locale = new Intl.Locale(navigator.language);
+  // @ts-ignore locale.getWeekInfo() not supported in Firefox
+  // 1 (monday) for en-GB, 7 (sunday) for en-US
+  const firstDayOfWeekForLocale = locale.getWeekInfo().firstDay || 7;
+  const startOfWeekForDate = startOfWeek(date, {
+    weekStartsOn: firstDayOfWeekForLocale,
+  });
+  return isSameDay(date, startOfWeekForDate);
 };
