@@ -1,15 +1,33 @@
 import "./App.css";
 import { Analytics } from "@vercel/analytics/react";
-import "./App.css";
-import { getDatesInMonth, isFirstDayOfWeek } from "./helpers";
-import { formatDate, isAfter, isBefore, isToday } from "date-fns";
+import {
+  getDatesInMonth,
+  getLabyrinthForDate,
+  isFirstDayOfWeek,
+} from "./helpers";
+import { formatDate, isAfter, isToday } from "date-fns";
 import React, { useState } from "react";
 import Labyrinth from "./Labyrinth";
 
+interface Style {
+  transformOrigin: string;
+}
+
 function App() {
   const [puzzleDate, setPuzzleDate] = useState<Date | null>(null);
+  const [style, setStyle] = useState<Style | null>(null);
   const today = new Date();
   const datesInMonth = getDatesInMonth(today);
+
+  const onClickDate = (
+    e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>,
+    date: Date,
+  ) => {
+    const { x, y } = e.currentTarget.getBoundingClientRect();
+    setStyle({ ...{ transformOrigin: `${x}px ${y}px` } });
+    setPuzzleDate(date);
+  };
+
   return (
     <>
       <div className="home">
@@ -18,30 +36,32 @@ function App() {
           {datesInMonth.map((date) => {
             const isFirst = isFirstDayOfWeek(date);
             const isPresent = isToday(date);
-            const isPast = isBefore(date, today);
             const isFuture = isAfter(date, today);
+
+            const { backgroundColor } = getLabyrinthForDate(date);
 
             return (
               <React.Fragment key={date.toDateString()}>
                 {isFirst && <br />}
                 {isFuture ? (
-                  <span className="door">{formatDate(date, "d")}</span>
+                  <div className="door">{formatDate(date, "d")}</div>
                 ) : (
-                  <span
-                    className="door clickable"
-                    onClick={() => setPuzzleDate(date)}
+                  <div
+                    className={`door clickable ${isPresent && "today"}`}
+                    style={{ backgroundColor }}
+                    onClick={(e) => onClickDate(e, date)}
                   >
                     {formatDate(date, "d")}
-                  </span>
+                  </div>
                 )}
               </React.Fragment>
             );
           })}
         </div>
-        <button onClick={() => setPuzzleDate(today)}>Today</button>
+        <button onClick={(e) => onClickDate(e, today)}>Today</button>
       </div>
-      {puzzleDate && (
-        <div className="labyrinth-container">
+      {puzzleDate && style && (
+        <div className="labyrinth-container" style={style}>
           <Labyrinth puzzleDate={puzzleDate} />
         </div>
       )}

@@ -9,21 +9,29 @@
   .calendar {
     text-align: left;
     .door {
+      /* background-color set in react */
       width: 48px;
-      min-width: 48px;
+      height: 48px;
       display: inline-block;
       text-align: center;
+      line-height: 48px;
+      border: 1px solid transparent;
 
       &.clickable {
         color: blue;
         text-decoration: underline;
         cursor: pointer;
       }
+
+      &.today {
+        border: 1px solid blue;
+      }
     }
   }
 }
 
 .labyrinth-container {
+  /* transform-origin set in react */
   animation: zoomIn 1s ease-out forwards;
   position: absolute;
   top: 0;
