@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import Labyrinth from "./Labyrinth.tsx";
+import Game from "./Game.tsx";
 import Home from "./Home.tsx";
 
 const router = createBrowserRouter([
@@ -12,7 +12,7 @@ const router = createBrowserRouter([
     Component: App,
     children: [
       { index: true, Component: Home },
-      { path: "labyrinth", Component: Labyrinth },
+      { path: "labyrinth", Component: Game },
     ],
   },
 ]);
