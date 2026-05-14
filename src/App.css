@@ -9,7 +9,7 @@
   .calendar {
     text-align: left;
     .door {
-      /* background-color set in react */
+      /* background-color & color set in react */
       width: 48px;
       height: 48px;
       display: inline-block;

@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/react";
 import {
   getDatesInMonth,
   getLabyrinthForDate,
+  getNumberOfDaysBeforeFirstDayOfMonth,
   isFirstDayOfWeek,
 } from "./helpers";
 import { formatDate, isAfter, isToday } from "date-fns";
@@ -19,6 +20,7 @@ function App() {
   const [style, setStyle] = useState<Style | null>(null);
   const today = new Date();
   const datesInMonth = getDatesInMonth(today);
+  const numberOfEmptyDays = getNumberOfDaysBeforeFirstDayOfMonth(today);
 
   const onPopNavigation = () => {
     if (window.location.pathname === "/") {
@@ -49,6 +51,9 @@ function App() {
       <div className="home">
         <h1>Daily Labyrinth</h1>
         <div className="calendar">
+          {[...Array(numberOfEmptyDays)].map((_, i) => (
+            <div key={`empty-day-${i}`} className="door" />
+          ))}
           {datesInMonth.map((date) => {
             const isFirst = isFirstDayOfWeek(date);
             const isPresent = isToday(date);

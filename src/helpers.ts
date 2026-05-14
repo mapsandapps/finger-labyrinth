@@ -5,6 +5,7 @@ import {
   eachDayOfInterval,
   startOfWeek,
   isSameDay,
+  getDay,
 } from "date-fns";
 import paper from "paper";
 import {
@@ -14,6 +15,14 @@ import {
   type Intersection,
   type Labyrinth,
 } from "./labyrinths";
+
+const locale = new Intl.Locale(navigator.language);
+// 1 (monday) for en-GB, 7 (sunday) for en-US
+const firstDayOfWeekForLocale =
+  typeof Intl.Locale.prototype.getWeekInfo === "function"
+    ? // @ts-ignore locale.getWeekInfo() not supported in Firefox
+      locale.getWeekInfo().firstDay
+    : 7;
 
 const getIntersections = (path: string): Intersection[] => {
   paper.setup(document.createElement("canvas"));
@@ -186,14 +195,17 @@ export const getLabyrinthForDate = (date: Date) => {
   return getLabyrinthFromIndex(labyrinthIndex);
 };
 
+export const getNumberOfDaysBeforeFirstDayOfMonth = (date: Date) => {
+  const firstOfMonth = startOfMonth(date);
+  const firstDay = getDay(firstOfMonth);
+
+  if (firstDayOfWeekForLocale >= firstDay) {
+    return 7 + firstDay - firstDayOfWeekForLocale;
+  }
+  return firstDay - firstDayOfWeekForLocale;
+};
+
 export const isFirstDayOfWeek = (date: Date) => {
-  const locale = new Intl.Locale(navigator.language);
-  // 1 (monday) for en-GB, 7 (sunday) for en-US
-  const firstDayOfWeekForLocale =
-    typeof Intl.Locale.prototype.getWeekInfo === "function"
-      ? // @ts-ignore locale.getWeekInfo() not supported in Firefox
-        locale.getWeekInfo().firstDay
-      : 7;
   const startOfWeekForDate = startOfWeek(date, {
     weekStartsOn: firstDayOfWeekForLocale,
   });
