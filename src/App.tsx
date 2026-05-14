@@ -6,7 +6,7 @@ import {
   isFirstDayOfWeek,
 } from "./helpers";
 import { formatDate, isAfter, isToday } from "date-fns";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Labyrinth from "./Labyrinth";
 
 interface Style {
@@ -19,6 +19,17 @@ function App() {
   const today = new Date();
   const datesInMonth = getDatesInMonth(today);
 
+  const onPopNavigation = () => {
+    if (window.location.pathname === "/") {
+      window.location.reload();
+    }
+  };
+  window.addEventListener("popstate", onPopNavigation);
+
+  useEffect(() => {
+    return window.removeEventListener("popstate", onPopNavigation);
+  }, []);
+
   const onClickDate = (
     e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>,
     date: Date,
@@ -26,6 +37,10 @@ function App() {
     const { x, y } = e.currentTarget.getBoundingClientRect();
     setStyle({ ...{ transformOrigin: `${x}px ${y}px` } });
     setPuzzleDate(date);
+    // since we're animating, we don't want to navigate within react, but we do want to push to the browser history
+    if (window.location.pathname === "/") {
+      window.history.pushState({}, "", "/labyrinth");
+    }
   };
 
   return (
