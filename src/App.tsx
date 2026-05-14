@@ -8,6 +8,7 @@ import {
 import { formatDate, isAfter, isToday } from "date-fns";
 import React, { useEffect, useState } from "react";
 import Labyrinth from "./Labyrinth";
+import { isDateInLocalStorage } from "./localstorage";
 
 interface Style {
   transformOrigin: string;
@@ -53,17 +54,42 @@ function App() {
             const isPresent = isToday(date);
             const isFuture = isAfter(date, today);
 
-            const { backgroundColor } = getLabyrinthForDate(date);
+            const {
+              backgroundColor,
+              path,
+              pathColor,
+              pathWidth,
+              viewBoxWidth,
+              viewBoxHeight,
+            } = getLabyrinthForDate(date);
+
+            const hasBeenCompleted = isDateInLocalStorage(date);
 
             return (
               <React.Fragment key={date.toDateString()}>
                 {isFirst && <br />}
                 {isFuture ? (
                   <div className="door">{formatDate(date, "d")}</div>
+                ) : hasBeenCompleted ? (
+                  <div
+                    className={`door ${isPresent && "today"}`}
+                    style={{ backgroundColor, color: pathColor }}
+                  >
+                    <svg
+                      viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
+                      preserveAspectRatio="xMidYMid meet"
+                    >
+                      <path
+                        d={path}
+                        stroke={pathColor}
+                        strokeWidth={pathWidth}
+                      />
+                    </svg>
+                  </div>
                 ) : (
                   <div
                     className={`door clickable ${isPresent && "today"}`}
-                    style={{ backgroundColor }}
+                    style={{ backgroundColor, color: pathColor }}
                     onClick={(e) => onClickDate(e, date)}
                   >
                     {formatDate(date, "d")}

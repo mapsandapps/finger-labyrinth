@@ -3,6 +3,7 @@ import "./Labyrinth.css";
 import "animate.css";
 import { type Labyrinth } from "./labyrinths";
 import { getLabyrinthForDate, isTouchOverCircle } from "./helpers";
+import { addDateToLocalStorage } from "./localstorage";
 
 type Direction = "in" | "out";
 
@@ -23,9 +24,11 @@ export default function Labyrinth(props: LabyrinthProps) {
   const [circleEl, setCircleEl] = useState<SVGCircleElement | null>(null);
   // needs to be a ref so it won't be stale in looped functions
   const isAnimatingRef = useRef(false);
+  const hasWonRef = useRef(false);
   const activeTouchesRef = useRef<React.Touch[]>([]);
   const currentLocationRef = useRef<SVGCircleElement>(null);
   const bridgeRefs = useRef<SVGPolygonElement[]>([]);
+  const date = puzzleDate || new Date();
 
   const {
     path,
@@ -36,7 +39,14 @@ export default function Labyrinth(props: LabyrinthProps) {
     viewBoxWidth,
     viewBoxHeight,
     bridges,
-  }: Labyrinth = getLabyrinthForDate(puzzleDate || new Date());
+  }: Labyrinth = getLabyrinthForDate(date);
+
+  const onWin = () => {
+    hasWonRef.current = true;
+    addDateToLocalStorage(date);
+    window.history.pushState({}, "", "/");
+    window.location.reload();
+  };
 
   const getAnimationOptions = (): KeyframeAnimationOptions => {
     const pathLength = (
@@ -64,6 +74,7 @@ export default function Labyrinth(props: LabyrinthProps) {
   };
 
   const updateActiveTouches = (e: TouchEvent<SVGSVGElement>) => {
+    if (hasWonRef.current) return;
     activeTouchesRef.current = Array.from(e.touches);
 
     if (e.touches.length > 0) {
@@ -122,7 +133,7 @@ export default function Labyrinth(props: LabyrinthProps) {
 
   // this calls itself
   const checkForCircleCrossingBridges = () => {
-    if (!isAnimatingRef.current) return;
+    if (!isAnimatingRef.current || hasWonRef.current) return;
 
     // see if circle is about to cross over/under a bridge
     bridgeRefs.current.forEach((bridge, i) => {
@@ -142,7 +153,13 @@ export default function Labyrinth(props: LabyrinthProps) {
 
   // there's no easy way to track if a touch leaves an element, so this is needed (unlike the simpler mouse case)
   const loop = () => {
-    if (!circleAnimation || !isAnimatingRef.current || !circleEl) return; // stop checking when paused/finished
+    if (
+      !circleAnimation ||
+      !isAnimatingRef.current ||
+      !circleEl ||
+      hasWonRef.current
+    )
+      return; // stop checking when paused/finished
 
     if (activeTouchesRef.current.length === 0) {
       onReleaseButton();
@@ -160,7 +177,7 @@ export default function Labyrinth(props: LabyrinthProps) {
   };
 
   const onHoldButton = () => {
-    if (!pathAnimation || !circleAnimation) return;
+    if (!pathAnimation || !circleAnimation || hasWonRef.current) return;
 
     if (isAnimatingRef.current) {
       // no-op: if already animating, do nothing
@@ -175,7 +192,7 @@ export default function Labyrinth(props: LabyrinthProps) {
   };
 
   const onReleaseButton = () => {
-    if (!pathAnimation || !circleAnimation) return;
+    if (!pathAnimation || !circleAnimation || hasWonRef.current) return;
 
     // pause path animation
     isAnimatingRef.current = false;
@@ -207,8 +224,13 @@ export default function Labyrinth(props: LabyrinthProps) {
         pathAnim.onfinish = () => {
           isAnimatingRef.current = false;
           const newDirection = direction === "in" ? "out" : "in";
-          setDirection(newDirection);
-          swapCircleColor(newDirection);
+
+          if (newDirection === "out") {
+            setDirection(newDirection);
+            swapCircleColor(newDirection);
+          } else {
+            onWin();
+          }
         };
 
         setPathAnimation(pathAnim);
