@@ -1,3 +1,18 @@
+export interface Intersection {
+  point: {
+    x: number;
+    y: number;
+  };
+  angle1: number; // degrees
+  angle2: number; // degrees
+}
+
+export interface Bridge {
+  bridgePolygon: string;
+  sideAPolygon?: string;
+  sideBPolygon?: string;
+}
+
 // "LabyrinthData"s get merged with defaultLabyrinth (a Labyrinth) to create a Labyrinth (i.e. that has all items defined)
 export interface LabyrinthData {
   path: string;
@@ -17,6 +32,7 @@ export interface Labyrinth {
   pathWidth: number;
   viewBoxWidth: number;
   viewBoxHeight: number;
+  bridges?: Bridge[];
 }
 
 export const defaultLabyrinth: Labyrinth = {
@@ -45,6 +61,16 @@ export const labyrinths: LabyrinthData[] = [
     pathWidth: 8,
     travelingColor: "#a60000",
     backgroundColor: "#d1d1d1",
+  },
+  {
+    path: "M136.684 231C136.684 175.155 133.184 115.5 136.684 104C140.184 92.5 146.534 82 158.684 82C170.835 82 180.684 91.8497 180.684 104C180.684 116.15 170.184 123.5 158.684 126C147.184 128.5 101.184 117.5 88.1844 112.5C75.1844 107.5 51.1843 97.5015 51.1843 79C51.1843 60.4985 66.9705 49.5283 82.1844 39C97.3982 28.4717 127.184 13 158.684 22C190.184 31 227.684 125.609 231.184 139.5C234.684 153.391 235.184 161.5 231.184 178C227.184 194.5 220.184 213 207.684 217.5C195.184 222 74.1843 220.5 61.1843 217.5C48.1844 214.5 34.244 213.176 30.6843 199.891C27.1246 186.606 44.3397 169.391 61.1843 169.391C78.029 169.391 87.7969 188.381 91.6843 199.891C95.5718 211.401 95.1844 217.5 95.1844 217.5V231",
+    pathColor: "pink",
+    travelingColor: "slateblue",
+  },
+  {
+    path: "M114 19L91.5 105L121 156.096L170.5 127.517V73.0001L82 35.0001L58 48.8565L64.4693 73.0001L125.5 89.3532L85.2894 159L118 191.711L152.5 171.792L137.952 117.5L198.574 82.5L161.913 19L133 73.0001",
+    pathColor: "pink",
+    travelingColor: "slateblue",
   },
 ];
 
