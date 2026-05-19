@@ -284,7 +284,7 @@ export default function Labyrinth(props: LabyrinthProps) {
         style={{
           backgroundColor,
           // @ts-ignore
-          "--center-circle-r": `${centerCircle.r || pathWidth / 2}px`,
+          "--center-circle-r": `${centerCircle?.r || pathWidth / 2}px`,
         }}
       >
         <g fill="none" fillRule="evenodd">
