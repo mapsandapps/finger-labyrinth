@@ -27,6 +27,7 @@ export default function Labyrinth(props: LabyrinthProps) {
   const hasWonRef = useRef(false);
   const activeTouchesRef = useRef<React.Touch[]>([]);
   const currentLocationRef = useRef<SVGCircleElement>(null);
+  const centerCircleRef = useRef<SVGCircleElement>(null);
   const bridgeRefs = useRef<SVGPolygonElement[]>([]);
   const date = puzzleDate || new Date();
 
@@ -39,6 +40,7 @@ export default function Labyrinth(props: LabyrinthProps) {
     viewBoxWidth,
     viewBoxHeight,
     bridges,
+    centerCircle,
   }: Labyrinth = getLabyrinthForDate(date);
 
   const onWin = () => {
@@ -188,6 +190,10 @@ export default function Labyrinth(props: LabyrinthProps) {
       pathAnimation.play();
       circleAnimation.play();
       currentLocationRef.current?.classList.remove(...ANIMATION_CLASSES);
+      if (direction === "out" && centerCircleRef.current) {
+        centerCircleRef.current.classList.remove("expand");
+        centerCircleRef.current.classList.add("contract");
+      }
     }
   };
 
@@ -228,6 +234,10 @@ export default function Labyrinth(props: LabyrinthProps) {
           if (newDirection === "out") {
             setDirection(newDirection);
             swapCircleColor(newDirection);
+            if (centerCircleRef.current) {
+              centerCircleRef.current.classList.remove("contract");
+              centerCircleRef.current.classList.add("expand");
+            }
           } else {
             onWin();
           }
@@ -271,7 +281,11 @@ export default function Labyrinth(props: LabyrinthProps) {
         onTouchStart={updateActiveTouches}
         onTouchMove={updateActiveTouches}
         onTouchEnd={updateActiveTouches}
-        style={{ backgroundColor }}
+        style={{
+          backgroundColor,
+          // @ts-ignore
+          "--center-circle-r": `${centerCircle.r || pathWidth / 2}px`,
+        }}
       >
         <g fill="none" fillRule="evenodd">
           <path stroke={pathColor} strokeWidth={pathWidth} d={path} />
@@ -281,6 +295,24 @@ export default function Labyrinth(props: LabyrinthProps) {
             strokeWidth={pathWidth}
             d={path}
           />
+          {centerCircle && (
+            <>
+              <circle
+                cx={centerCircle.cx}
+                cy={centerCircle.cy}
+                r={centerCircle.r || pathWidth / 2}
+                fill={pathColor}
+              />
+              <circle
+                className="center-circle-animated"
+                ref={centerCircleRef}
+                cx={centerCircle.cx}
+                cy={centerCircle.cy}
+                r={0}
+                fill={travelingColor}
+              />
+            </>
+          )}
           <g id="bridges">
             {bridges?.map((bridge, i) => (
               <polygon

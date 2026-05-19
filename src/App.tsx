@@ -77,18 +77,21 @@ function App() {
                   <div className="door">{formatDate(date, "d")}</div>
                 ) : hasBeenCompleted ? (
                   <div
-                    className={`door ${isPresent && "today"}`}
+                    className={`door clickable ${isPresent && "today"}`}
                     style={{ backgroundColor, color: pathColor }}
+                    onClick={(e) => onClickDate(e, date)}
                   >
                     <svg
                       viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
                       preserveAspectRatio="xMidYMid meet"
                     >
-                      <path
-                        d={path}
-                        stroke={pathColor}
-                        strokeWidth={pathWidth}
-                      />
+                      <g fill="none" fillRule="evenodd">
+                        <path
+                          d={path}
+                          stroke={pathColor}
+                          strokeWidth={pathWidth}
+                        />
+                      </g>
                     </svg>
                   </div>
                 ) : (
@@ -105,6 +108,10 @@ function App() {
           })}
         </div>
         <button onClick={(e) => onClickDate(e, today)}>Today</button>
+        <p>
+          Using the mouse or touch, "walk" in and then back out of the
+          labyrinth.
+        </p>
       </div>
       {puzzleDate && style && (
         <div className="labyrinth-container" style={style}>

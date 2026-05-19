@@ -6,4 +6,37 @@
     max-width: 100%;
     max-height: 100%;
   }
+
+  .center-circle-animated {
+    transform-origin: center;
+    r: 0px;
+
+    &.expand {
+      animation: expand 1s ease-out forwards;
+    }
+
+    &.contract {
+      animation: contract 1s ease-out forwards;
+    }
+  }
+}
+
+@keyframes expand {
+  0% {
+    r: 0px;
+  }
+  100% {
+    /* value set in react */
+    r: var(--center-circle-r);
+  }
+}
+
+@keyframes contract {
+  0% {
+    /* value set in react */
+    r: var(--center-circle-r);
+  }
+  100% {
+    r: 0px;
+  }
 }
