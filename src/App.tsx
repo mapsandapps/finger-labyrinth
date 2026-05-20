@@ -66,7 +66,7 @@ function App() {
               pathWidth,
               viewBoxWidth,
               viewBoxHeight,
-            } = getLabyrinthForDate(date);
+            } = getLabyrinthForDate(date, false);
 
             const hasBeenCompleted = isDateInLocalStorage(date);
 

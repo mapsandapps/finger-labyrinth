@@ -41,7 +41,7 @@ export default function Labyrinth(props: LabyrinthProps) {
     viewBoxHeight,
     bridges,
     centerCircle,
-  }: Labyrinth = getLabyrinthForDate(date);
+  }: Labyrinth = getLabyrinthForDate(date, true);
 
   const onWin = () => {
     hasWonRef.current = true;

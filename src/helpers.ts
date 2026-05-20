@@ -143,13 +143,16 @@ const getBridges = (labyrinth: Labyrinth): Bridge[] => {
   return bridges;
 };
 
-const getLabyrinthFromIndex = (index: number): Labyrinth => {
+const getLabyrinthFromIndex = (
+  index: number,
+  isPlayable: boolean,
+): Labyrinth => {
   const labyrinth = {
     ...defaultLabyrinth,
     ...labyrinths[index],
   };
 
-  labyrinth.bridges = getBridges(labyrinth);
+  if (isPlayable) labyrinth.bridges = getBridges(labyrinth);
 
   return labyrinth;
 };
@@ -188,11 +191,11 @@ const getIntegerForDate = (date: Date) => {
   return Math.floor(date.getTime() / msInDay);
 };
 
-export const getLabyrinthForDate = (date: Date) => {
+export const getLabyrinthForDate = (date: Date, isPlayable: boolean) => {
   const numberOfLabyrinths = labyrinths.length;
   const intDate = getIntegerForDate(date);
   const labyrinthIndex = intDate % numberOfLabyrinths;
-  return getLabyrinthFromIndex(labyrinthIndex);
+  return getLabyrinthFromIndex(labyrinthIndex, isPlayable);
 };
 
 export const getNumberOfDaysBeforeFirstDayOfMonth = (date: Date) => {
