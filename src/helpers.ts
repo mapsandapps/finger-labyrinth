@@ -43,12 +43,21 @@ const getIntersections = (path: string): Intersection[] => {
   return intersections;
 };
 
+const getAngleDifference = (angle1: number, angle2: number): number => {
+  let diff = angle2 - angle1;
+  // normalize to the range [-180, 180]
+  return ((diff + 180) % 360) - 180;
+};
+
 const getDirection = (angle1: number, angle2: number) => {
-  if (angle1 < 0) {
-    return angle2 >= 90 || angle2 < -90 ? 1 : -1;
-  } else {
-    return angle2 >= 90 || angle2 < -90 ? -1 : 1;
+  // two sets of path segments can cross visually at the same angle but need different directions. what matters is the "handedness" of the crossing
+  // e.g. if there is a vertical path going from top to bottom with a horizontal path going under it from left to right, it needs a negative direction
+  // and if the horizontal path goes under it from right to left, it needs a positive direction
+  const angleDifference = getAngleDifference(angle1, angle2);
+  if (angleDifference < 0) {
+    return Math.abs(angleDifference) < 180 ? 1 : -1;
   }
+  return Math.abs(angleDifference) < 180 ? -1 : 1;
 };
 
 const getBridgePolygon = (

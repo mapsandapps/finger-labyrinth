@@ -91,6 +91,17 @@ export const labyrinths: LabyrinthData[] = [
     pathColor: "pink",
     travelingColor: "slateblue",
   },
+  {
+    path: "M86 39V155.5H154V61H32V119.5H120.5",
+    pathColor: "orange",
+    backgroundColor: "navy",
+  },
+  {
+    path: "M115 14V76.5L149 110.5L115 144.5H79.5V76.5L165 162L216.5 110.5L182.5 76.5L55 150.112V94H168.5V43.5H63V175H194.5V66L242 113.5L208.5 147L168.5 123.906L130.406 162V201.5H92.5V242H185.5V218.5H157.5V188.5H110.5V213H173.5V230.5H198.5V198H143V230.5H79.5V162H97.5V60H136.5V22H97.5L43 76.5",
+    pathColor: "green",
+    backgroundColor: "darkgreen",
+    pathWidth: 4,
+  },
 ];
 
 export const simpleLabyrinth = {
