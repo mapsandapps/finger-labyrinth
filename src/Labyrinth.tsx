@@ -52,7 +52,7 @@ export default function Labyrinth(props: LabyrinthProps) {
 
   const getAnimationOptions = (): KeyframeAnimationOptions => {
     const pathLength = (
-      document.querySelector("path") as SVGPathElement
+      document.querySelector("#path-floor") as SVGPathElement
     ).getTotalLength();
     const duration = pathLength ? pathLength * (600 / SPEED) : 10000;
 
@@ -288,7 +288,12 @@ export default function Labyrinth(props: LabyrinthProps) {
         }}
       >
         <g fill="none" fillRule="evenodd">
-          <path stroke={pathColor} strokeWidth={pathWidth} d={path} />
+          <path
+            id="path-floor"
+            stroke={pathColor}
+            strokeWidth={pathWidth}
+            d={path}
+          />
           <path
             ref={initPath}
             stroke={travelingColor}
