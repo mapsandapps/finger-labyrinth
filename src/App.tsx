@@ -9,6 +9,7 @@ import {
 import { formatDate, isAfter, isToday } from "date-fns";
 import React, { useEffect, useState } from "react";
 import Labyrinth from "./Labyrinth";
+import Generator from "./Generator.tsx";
 import { isDateInLocalStorage } from "./localstorage";
 
 interface Style {
@@ -118,6 +119,7 @@ function App() {
           <Labyrinth puzzleDate={puzzleDate} />
         </div>
       )}
+      <Generator />
       <Analytics />
     </>
   );
