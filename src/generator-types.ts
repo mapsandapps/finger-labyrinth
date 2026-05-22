@@ -2,6 +2,11 @@ export type Direction = "up" | "left" | "down" | "right";
 
 export type Polarity = "vertical" | "horizontal";
 
+export type SvgCircleData = {
+  cx: number;
+  cy: number;
+};
+
 export type CellType =
   | "empty"
   | "horizontal"
@@ -32,6 +37,10 @@ export interface Labyrinth {
   grid: Grid;
   cols: number;
   rows: number;
-  backwardsPath: string;
+  path: string;
   currentEnd: Cell;
+  width: number;
+  height: number;
+  startCircle?: SvgCircleData;
+  endCircle: SvgCircleData;
 }

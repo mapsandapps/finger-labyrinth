@@ -1,4 +1,14 @@
+import { BORDER, CELL_SIZE, HALF_CELL_SIZE } from "./generator";
 import type { Cell, CellType, Grid, Polarity } from "./generator-types";
+
+// we start constructing the labyrinth in the middle, but in the game, we want the labyrinth to end in the middle. therefore, we construct the path backwards
+export const prependToPath = (
+  path: string,
+  col: number,
+  row: number,
+): string => {
+  return `L ${BORDER + col * CELL_SIZE + HALF_CELL_SIZE} ${BORDER + row * CELL_SIZE + HALF_CELL_SIZE} ${path}`;
+};
 
 export const getCellType = (cell: Cell, endCell: Cell): CellType => {
   const numberOfOpenings = [

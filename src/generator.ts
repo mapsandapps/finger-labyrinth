@@ -4,10 +4,16 @@ import {
   getCellType,
   getIsCellPassable,
   initializeGrid,
+  prependToPath,
   prettyPrintGrid,
 } from "./generator-helpers";
 
 let labyrinth: Labyrinth;
+export const AVAILABLE_COLS = 11;
+export const AVAILABLE_ROWS = 11;
+export const BORDER = 16; // space around outside of labyrinth
+export const CELL_SIZE = 16; // width & height of each cell
+export const HALF_CELL_SIZE = CELL_SIZE / 2;
 
 const carvePath = (start: Point, end: Point) => {
   const direction =
@@ -87,6 +93,7 @@ const carvePath = (start: Point, end: Point) => {
       cell.type = getCellType(cell, labyrinth.currentEnd);
     }
   }
+  labyrinth.path = prependToPath(labyrinth.path, start.col, start.row);
 };
 
 const findLeftOptions = () => {
@@ -205,9 +212,9 @@ const findAndCarveNextPath = () => {
   } else {
     const nextEnd = turnOptions[random(turnOptions.length - 1)];
     carvePath(labyrinth.currentEnd, nextEnd);
-
-    findAndCarveNextPath();
   }
+
+  findAndCarveNextPath();
 };
 
 const makeFirstMove = () => {
@@ -219,11 +226,12 @@ const makeFirstMove = () => {
     col: col,
     row: startRow - pathLength,
   });
+  labyrinth.path = prependToPath(labyrinth.path, col, startRow);
 };
 
-export const generateLabyrinth = (): string => {
-  const cols = 11;
-  const rows = 11;
+export const generateLabyrinth = (): Labyrinth => {
+  const cols = AVAILABLE_COLS;
+  const rows = AVAILABLE_ROWS;
   const centerCol = Math.floor(cols / 2);
   const centerRow = Math.floor(rows / 2);
   const grid = initializeGrid(cols, rows);
@@ -232,8 +240,15 @@ export const generateLabyrinth = (): string => {
     grid,
     cols,
     rows,
-    backwardsPath: "",
+    path: "",
     currentEnd: grid[centerRow][centerCol],
+    // NOTE: size is not changed if some rows/cols are not used
+    width: BORDER * 2 + AVAILABLE_COLS * CELL_SIZE,
+    height: BORDER * 2 + AVAILABLE_ROWS * CELL_SIZE,
+    endCircle: {
+      cx: BORDER + centerCol * CELL_SIZE + HALF_CELL_SIZE,
+      cy: BORDER + centerRow * CELL_SIZE + HALF_CELL_SIZE,
+    },
   };
   labyrinth.currentEnd.type = "center";
   labyrinth.currentEnd.openUp = true;
@@ -244,5 +259,17 @@ export const generateLabyrinth = (): string => {
   console.log(labyrinth);
   prettyPrintGrid(labyrinth.grid);
 
-  return "";
+  // prepend the start point to the path
+  const labyrinthStartX =
+    BORDER + labyrinth.currentEnd.col * CELL_SIZE + HALF_CELL_SIZE;
+  const labyrinthStartY =
+    BORDER + labyrinth.currentEnd.row * CELL_SIZE + HALF_CELL_SIZE;
+  labyrinth.path = `M${labyrinthStartX} ${labyrinthStartY} ` + labyrinth.path;
+  labyrinth.startCircle = {
+    cx: labyrinthStartX,
+    cy: labyrinthStartY,
+  };
+  return labyrinth;
 };
+
+// TODO: round path
