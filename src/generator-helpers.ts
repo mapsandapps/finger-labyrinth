@@ -1,11 +1,12 @@
 import type { Cell, CellType, Grid, Polarity } from "./generator-types";
 
 export const getCellType = (cell: Cell, endCell: Cell): CellType => {
-  const numberOfOpenings =
-    (cell.openUp ? 1 : 0) +
-    (cell.openRight ? 1 : 0) +
-    (cell.openLeft ? 1 : 0) +
-    (cell.openDown ? 1 : 0);
+  const numberOfOpenings = [
+    cell.openUp,
+    cell.openRight,
+    cell.openLeft,
+    cell.openDown,
+  ].filter(Boolean).length;
   if (numberOfOpenings === 4) return "intersection";
   if (cell.openUp && cell.openDown) return "vertical";
   if (cell.openRight && cell.openLeft) return "horizontal";

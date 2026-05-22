@@ -26,91 +26,67 @@ const carvePath = (start: Point, end: Point) => {
     return;
   }
 
+  // set end
+  labyrinth.currentEnd = labyrinth.grid[end.row][end.col];
+
   // carve path
   if (direction === "up") {
     for (let r = start.row; r >= end.row; r--) {
       const cell = labyrinth.grid[r][start.col];
       if (r === end.row) {
-        cell.type = "end";
         cell.openDown = true;
       } else if (r === start.row) {
-        // this was the previous end; change its type if needed
         cell.openUp = true;
-        cell.type = getCellType(cell, labyrinth.currentEnd);
       } else {
-        if (cell.type === "horizontal") {
-          cell.type = "intersection";
-        } else {
-          cell.type = "vertical";
-        }
         cell.openDown = true;
         cell.openUp = true;
       }
+
+      cell.type = getCellType(cell, labyrinth.currentEnd);
     }
   } else if (direction === "left") {
     for (let c = start.col; c >= end.col; c--) {
       const cell = labyrinth.grid[start.row][c];
       if (c === end.col) {
-        cell.type = "end";
         cell.openRight = true;
       } else if (c === start.col) {
-        // this was the previous end; change its type if needed
         cell.openLeft = true;
-        cell.type = getCellType(cell, labyrinth.currentEnd);
       } else {
-        if (cell.type === "vertical") {
-          cell.type = "intersection";
-        } else {
-          cell.type = "horizontal";
-        }
         cell.openLeft = true;
         cell.openRight = true;
       }
+
+      cell.type = getCellType(cell, labyrinth.currentEnd);
     }
   } else if (direction === "down") {
     for (let r = start.row; r <= end.row; r++) {
       const cell = labyrinth.grid[r][start.col];
       if (r === end.row) {
-        cell.type = "end";
         cell.openUp = true;
       } else if (r === start.row) {
-        // this was the previous end; change its type if needed
         cell.openDown = true;
-        cell.type = getCellType(cell, labyrinth.currentEnd);
       } else {
-        if (cell.type === "horizontal") {
-          cell.type = "intersection";
-        } else {
-          cell.type = "vertical";
-        }
         cell.openUp = true;
         cell.openDown = true;
       }
+
+      cell.type = getCellType(cell, labyrinth.currentEnd);
     }
   } else if (direction === "right") {
     for (let c = start.col; c <= end.col; c++) {
       const cell = labyrinth.grid[start.row][c];
       if (c === end.col) {
-        cell.type = "end";
         cell.openLeft = true;
       } else if (c === start.col) {
-        // this was the previous end; change its type if needed
         cell.openRight = true;
-        cell.type = getCellType(cell, labyrinth.currentEnd);
       } else {
-        if (cell.type === "vertical") {
-          cell.type = "intersection";
-        } else {
-          cell.type = "horizontal";
-        }
         cell.openRight = true;
         cell.openLeft = true;
       }
+
+      cell.type = getCellType(cell, labyrinth.currentEnd);
     }
   }
-
-  // set end
-  labyrinth.currentEnd = labyrinth.grid[end.row][end.col];
 };
 
 const findLeftOptions = () => {
