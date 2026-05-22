@@ -1,4 +1,19 @@
-import type { CellType, Grid, Polarity } from "./generator-types";
+import type { Cell, CellType, Grid, Polarity } from "./generator-types";
+
+export const getCellType = (cell: Cell, endCell: Cell): CellType => {
+  const numberOfOpenings =
+    (cell.openUp ? 1 : 0) +
+    (cell.openRight ? 1 : 0) +
+    (cell.openLeft ? 1 : 0) +
+    (cell.openDown ? 1 : 0);
+  if (numberOfOpenings === 4) return "intersection";
+  if (cell.openUp && cell.openDown) return "vertical";
+  if (cell.openRight && cell.openLeft) return "horizontal";
+  if (numberOfOpenings === 2) return "corner";
+  if (numberOfOpenings === 0) return "empty";
+  if (cell.col === endCell.col && cell.row === endCell.row) return "end";
+  return "center";
+};
 
 export const getIsCellPassable = (polarity: Polarity, type: CellType) => {
   if (type === "intersection" || type === "center" || type === "corner")

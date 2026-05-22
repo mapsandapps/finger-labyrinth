@@ -1,6 +1,7 @@
 import { random } from "lodash";
 import type { Labyrinth, Point } from "./generator-types";
 import {
+  getCellType,
   getIsCellPassable,
   initializeGrid,
   prettyPrintGrid,
@@ -33,11 +34,9 @@ const carvePath = (start: Point, end: Point) => {
         cell.type = "end";
         cell.openDown = true;
       } else if (r === start.row) {
-        // this was the previous end; convert it to a corner (unless it was the middle of the labyrinth)
-        if (cell.type !== "center") {
-          cell.type = "corner";
-        }
+        // this was the previous end; change its type if needed
         cell.openUp = true;
+        cell.type = getCellType(cell, labyrinth.currentEnd);
       } else {
         if (cell.type === "horizontal") {
           cell.type = "intersection";
@@ -55,12 +54,9 @@ const carvePath = (start: Point, end: Point) => {
         cell.type = "end";
         cell.openRight = true;
       } else if (c === start.col) {
-        // this was the previous end; convert it to a corner (unless it was the middle of the labyrinth)
-        // (so far, the middle can only have a direction of up, but we'll account for it anyway)
-        if (cell.type !== "center") {
-          cell.type = "corner";
-        }
+        // this was the previous end; change its type if needed
         cell.openLeft = true;
+        cell.type = getCellType(cell, labyrinth.currentEnd);
       } else {
         if (cell.type === "vertical") {
           cell.type = "intersection";
@@ -78,12 +74,9 @@ const carvePath = (start: Point, end: Point) => {
         cell.type = "end";
         cell.openUp = true;
       } else if (r === start.row) {
-        // this was the previous end; convert it to a corner (unless it was the middle of the labyrinth)
-        // (so far, the middle can only have a direction of up, but we'll account for it anyway)
-        if (cell.type !== "center") {
-          cell.type = "corner";
-        }
+        // this was the previous end; change its type if needed
         cell.openDown = true;
+        cell.type = getCellType(cell, labyrinth.currentEnd);
       } else {
         if (cell.type === "horizontal") {
           cell.type = "intersection";
@@ -101,12 +94,9 @@ const carvePath = (start: Point, end: Point) => {
         cell.type = "end";
         cell.openLeft = true;
       } else if (c === start.col) {
-        // this was the previous end; convert it to a corner (unless it was the middle of the labyrinth)
-        // (so far, the middle can only have a direction of up, but we'll account for it anyway)
-        if (cell.type !== "center") {
-          cell.type = "corner";
-        }
+        // this was the previous end; change its type if needed
         cell.openRight = true;
+        cell.type = getCellType(cell, labyrinth.currentEnd);
       } else {
         if (cell.type === "vertical") {
           cell.type = "intersection";
@@ -125,7 +115,6 @@ const carvePath = (start: Point, end: Point) => {
 
 const findLeftOptions = () => {
   const options = [];
-  // if (labyrinth.currentEnd.col <= 0) return [];
 
   for (let c = labyrinth.currentEnd.col - 1; c >= 0; c--) {
     const cell = labyrinth.grid[labyrinth.currentEnd.row][c];
@@ -143,7 +132,6 @@ const findLeftOptions = () => {
 
 const findRightOptions = () => {
   const options = [];
-  // if (labyrinth.currentEnd.col >= labyrinth.cols - 1) return [];
 
   for (let c = labyrinth.currentEnd.col + 1; c <= labyrinth.cols - 1; c++) {
     const cell = labyrinth.grid[labyrinth.currentEnd.row][c];
@@ -197,7 +185,7 @@ const findDownOptions = () => {
 // if it's going left or right, look up and down
 const findTurnOptions = () => {
   const isLookingHorizontally =
-    labyrinth.currentEnd?.openDown || labyrinth.currentEnd?.openUp;
+    labyrinth.currentEnd.openDown || labyrinth.currentEnd.openUp;
 
   if (isLookingHorizontally) {
     // left & right need to be split because we need to "walk" left and "walk" right, since there are certain cells that will be impassable, and we don't want to move to points beyond those ("beyond" relative to the last ending point)
@@ -214,29 +202,47 @@ const findTurnOptions = () => {
   }
 };
 
+const findAheadOptions = () => {
+  if (labyrinth.currentEnd.openUp) {
+    return findDownOptions();
+  } else if (labyrinth.currentEnd.openRight) {
+    return findLeftOptions();
+  } else if (labyrinth.currentEnd.openDown) {
+    return findUpOptions();
+  }
+  return findRightOptions();
+};
+
+// recursive
 const findAndCarveNextPath = () => {
   const turnOptions = findTurnOptions();
 
-  const nextEnd = turnOptions[random(turnOptions.length - 1)];
+  // if there are no turns that can be made, try to keep moving ahead
+  if (turnOptions.length < 1) {
+    const aheadOptions = findAheadOptions();
 
-  carvePath(labyrinth.currentEnd, nextEnd);
+    // if there are no options to continue straight, stop recursing & exit
+    if (aheadOptions.length < 1) return;
+
+    const nextEnd = aheadOptions[random(aheadOptions.length - 1)];
+    carvePath(labyrinth.currentEnd, nextEnd);
+  } else {
+    const nextEnd = turnOptions[random(turnOptions.length - 1)];
+    carvePath(labyrinth.currentEnd, nextEnd);
+
+    findAndCarveNextPath();
+  }
 };
 
-// TODO: refactor to not need this (probably)
 const makeFirstMove = () => {
   const { col, row: startRow } = labyrinth.currentEnd;
-  labyrinth.currentEnd.type = "center";
-  labyrinth.currentEnd.openUp = true;
 
   const maxPathLength = labyrinth.rows - startRow - 1;
   const pathLength = random(1, maxPathLength);
-  carvePath(
-    { col: col, row: startRow },
-    {
-      col: col,
-      row: startRow - pathLength,
-    },
-  );
+  carvePath(labyrinth.currentEnd, {
+    col: col,
+    row: startRow - pathLength,
+  });
 };
 
 export const generateLabyrinth = (): string => {
@@ -253,16 +259,11 @@ export const generateLabyrinth = (): string => {
     backwardsPath: "",
     currentEnd: grid[centerRow][centerCol],
   };
+  labyrinth.currentEnd.type = "center";
+  labyrinth.currentEnd.openUp = true;
 
   makeFirstMove();
-
-  // TODO: recurse
-  findAndCarveNextPath();
-  findAndCarveNextPath();
-  findAndCarveNextPath();
-  findAndCarveNextPath();
-  findAndCarveNextPath();
-  findAndCarveNextPath();
+  findAndCarveNextPath(); // recursive
 
   console.log(labyrinth);
   prettyPrintGrid(labyrinth.grid);
