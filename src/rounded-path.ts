@@ -89,7 +89,7 @@ const getMoreInfoForCommands = (
 ): CommandPlus[] => {
   const commands: CommandPlus[] = [];
 
-  absolutePath.forEach((command, i) => {
+  absolutePath.forEach((command) => {
     const isVertical = getIsVertical(command);
     const isHorizontal = getIsHorizontal(command);
 
@@ -123,11 +123,21 @@ const smoothCorner = (
   // push segment of command
   const x = command.isHorizontal ? command.x - radius * direction : command.x;
   const y = command.isVertical ? command.y - radius * direction : command.y;
-  curvedCommands.push({
-    code: command.code,
-    x,
-    y,
-  });
+
+  // if there's an A followed by an L, and the x & y of the A are the same as those of the L, we don't need the L
+  const lastCurvedCommand = curvedCommands[curvedCommands.length - 1];
+  const isSamePointAsLast =
+    command.code === "L" &&
+    x === lastCurvedCommand.x &&
+    y === lastCurvedCommand.y;
+
+  if (!isSamePointAsLast) {
+    curvedCommands.push({
+      code: command.code,
+      x,
+      y,
+    });
+  }
   // push arc
   const newX = command.isHorizontal
     ? x + radius * direction
@@ -160,7 +170,7 @@ const smoothCorner = (
 export const calculateRoundedPath = (
   path: string,
   cellSize: number,
-  maxSizeToRound: 1 | 2 | 3, // 1 rounds all corners slightly; 2 rounds small corners slightly, large corners more; 3 also rounds the next size up to be very rounded. NOTE: only 1 works with bridges in this project
+  maxSizeToRound: 1 | 2 | 3 = 1, // 1 rounds all corners slightly; 2 rounds small corners slightly, large corners more; 3 also rounds the next size up to be very rounded. NOTE: only 1 works with bridges in this project
 ): string => {
   const halfCellSize = cellSize / 2;
   const largeRadius = cellSize + halfCellSize; // used with maxSizeToRound >= 2

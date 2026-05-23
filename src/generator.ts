@@ -273,7 +273,7 @@ export const generateLabyrinth = (): Labyrinth => {
     cx: labyrinthStartX,
     cy: labyrinthStartY,
   };
-  labyrinth.roundedPath = calculateRoundedPath(labyrinth.path, CELL_SIZE);
+  labyrinth.roundedPath = calculateRoundedPath(labyrinth.path, CELL_SIZE, 1);
   return labyrinth;
 };
 
