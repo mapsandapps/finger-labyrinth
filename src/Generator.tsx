@@ -3,6 +3,7 @@ import { generateLabyrinth } from "./generator";
 import "./App.css";
 import type { Labyrinth } from "./generator-types";
 import { calculateRoundedPath } from "./rounded-path";
+import { getLabyrinthObj } from "./generator-helpers";
 
 const strokeWidth = 12;
 
@@ -26,6 +27,8 @@ export default function Generator() {
     }
   };
 
+  const labyrinthObj = getLabyrinthObj(labyrinth, curvedPath);
+
   return (
     <>
       {labyrinth?.path && (
@@ -35,15 +38,11 @@ export default function Generator() {
           preserveAspectRatio="xMidYMid meet"
         >
           <g fill="none" fillRule="evenodd">
-            {curvedPath ? (
-              <path d={curvedPath} stroke="black" strokeWidth={strokeWidth} />
-            ) : (
-              <path
-                d={labyrinth.path}
-                stroke="black"
-                strokeWidth={strokeWidth}
-              />
-            )}
+            <path
+              d={curvedPath || labyrinth.path}
+              stroke="black"
+              strokeWidth={strokeWidth}
+            />
           </g>
           {labyrinth.startCircle && (
             <circle
@@ -63,7 +62,7 @@ export default function Generator() {
         <textarea
           cols={50}
           rows={6}
-          value={curvedPath || labyrinth.path}
+          value={JSON.stringify(labyrinthObj, null, 2)}
           readOnly
         />
       )}

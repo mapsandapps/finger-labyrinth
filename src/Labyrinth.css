@@ -1,11 +1,9 @@
 .labyrinth-svg {
-  svg {
-    display: block;
-    width: 100vw;
-    height: 100vh;
-    max-width: 100%;
-    max-height: 100%;
-  }
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
 
   .center-circle-animated {
     transform-origin: center;

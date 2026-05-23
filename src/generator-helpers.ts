@@ -1,5 +1,24 @@
 import { BORDER, CELL_SIZE, HALF_CELL_SIZE } from "./generator";
-import type { Cell, CellType, Grid, Polarity } from "./generator-types";
+import type {
+  Cell,
+  CellType,
+  Grid,
+  Labyrinth,
+  Polarity,
+} from "./generator-types";
+import type { LabyrinthData } from "./labyrinths";
+
+export const getLabyrinthObj = (
+  labyrinth?: Labyrinth,
+  curvedPath?: string,
+): LabyrinthData => {
+  return {
+    path: curvedPath || labyrinth?.path || "",
+    pathWidth: labyrinth?.cellSize ? labyrinth.cellSize - 4 : 8,
+    viewBoxWidth: labyrinth?.width || 0,
+    viewBoxHeight: labyrinth?.height || 0,
+  };
+};
 
 // we start constructing the labyrinth in the middle, but in the game, we want the labyrinth to end in the middle. therefore, we construct the path backwards
 export const prependToPath = (

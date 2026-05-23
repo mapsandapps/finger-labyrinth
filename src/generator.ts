@@ -276,5 +276,3 @@ export const generateLabyrinth = (): Labyrinth => {
   labyrinth.roundedPath = calculateRoundedPath(labyrinth.path, CELL_SIZE, 1);
   return labyrinth;
 };
-
-// TODO: round path
