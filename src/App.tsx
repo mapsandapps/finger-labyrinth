@@ -9,6 +9,7 @@ import {
 import { formatDate, isAfter, isToday } from "date-fns";
 import React, { useEffect, useState } from "react";
 import Labyrinth from "./Labyrinth";
+import Generator from "./Generator.tsx";
 import { isDateInLocalStorage } from "./localstorage";
 
 interface Style {
@@ -21,6 +22,7 @@ function App() {
   const today = new Date();
   const datesInMonth = getDatesInMonth(today);
   const numberOfEmptyDays = getNumberOfDaysBeforeFirstDayOfMonth(today);
+  const isInDevMode = import.meta.env.DEV;
 
   const onPopNavigation = () => {
     if (window.location.pathname === "/") {
@@ -118,6 +120,7 @@ function App() {
           <Labyrinth puzzleDate={puzzleDate} />
         </div>
       )}
+      {isInDevMode && <Generator />}
       <Analytics />
     </>
   );
