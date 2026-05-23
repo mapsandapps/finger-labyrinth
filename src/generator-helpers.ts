@@ -1,6 +1,12 @@
 import { BORDER, CELL_SIZE, HALF_CELL_SIZE } from "./generator";
 import type { Cell, CellType, Grid, Polarity } from "./generator-types";
 
+export const removeLastLine = (path: string): string => {
+  // remove the last L and anything after it
+  // but only if the last L isn't followed by any other letters
+  return path.replace(/L [0-9]+ [0-9]+ /, "");
+};
+
 // we start constructing the labyrinth in the middle, but in the game, we want the labyrinth to end in the middle. therefore, we construct the path backwards
 export const prependToPath = (
   path: string,

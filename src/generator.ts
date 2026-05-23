@@ -6,12 +6,13 @@ import {
   initializeGrid,
   prependToPath,
   prettyPrintGrid,
+  removeLastLine,
 } from "./generator-helpers";
 import { calculateRoundedPath } from "./rounded-path";
 
 let labyrinth: Labyrinth;
-const AVAILABLE_COLS = 11;
-const AVAILABLE_ROWS = 11;
+const AVAILABLE_COLS = 9;
+const AVAILABLE_ROWS = 9;
 export const BORDER = 16; // space around outside of labyrinth
 export const CELL_SIZE = 16; // width & height of each cell
 export const HALF_CELL_SIZE = CELL_SIZE / 2;
@@ -209,6 +210,8 @@ const findAndCarveNextPath = () => {
     if (aheadOptions.length < 1) return;
 
     const nextEnd = aheadOptions[random(aheadOptions.length - 1)];
+    // remove last line segment from path; it will be replaced with the longer one
+    labyrinth.path = removeLastLine(labyrinth.path);
     carvePath(labyrinth.currentEnd, nextEnd);
   } else {
     const nextEnd = turnOptions[random(turnOptions.length - 1)];
