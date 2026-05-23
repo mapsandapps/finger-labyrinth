@@ -135,7 +135,8 @@ export const calculateRoundedPath = (
       const arePerpendicular = getArePerpendicular(command, nextCommand);
       if (
         arePerpendicular &&
-        Math.abs(command.verticalOrHorizontalDistance) >= halfCellSize
+        Math.abs(command.verticalOrHorizontalDistance) >= halfCellSize &&
+        Math.abs(nextCommand.verticalOrHorizontalDistance) >= halfCellSize
       ) {
         const direction = command.verticalOrHorizontalDistance > 0 ? 1 : -1;
         const nextDirection =
