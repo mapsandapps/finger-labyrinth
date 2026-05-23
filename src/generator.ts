@@ -227,7 +227,6 @@ const makeFirstMove = () => {
     col: col,
     row: startRow - pathLength,
   });
-  labyrinth.path = prependToPath(labyrinth.path, col, startRow);
 };
 
 export const generateLabyrinth = (): Labyrinth => {

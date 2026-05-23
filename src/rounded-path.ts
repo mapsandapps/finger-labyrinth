@@ -1,7 +1,6 @@
 import {
   parseSVG,
   makeAbsolute,
-  // type Command,
   type CommandMadeAbsolute,
 } from "svg-path-parser";
 
@@ -93,8 +92,7 @@ const getMoreInfoForCommands = (
   absolutePath.forEach((command, i) => {
     const isVertical = getIsVertical(command);
     const isHorizontal = getIsHorizontal(command);
-    // console.log(command);
-    // if (i === absolutePath.length) return;
+
     commands.push({
       code: command.code,
       x: command.x,
@@ -125,13 +123,14 @@ export const calculateRoundedPath = (
   makeAbsolute(absolutePath); // mutates in place
   const commands = getMoreInfoForCommands(absolutePath);
   const curvedCommands: any[] = [];
-  // i think...
-  // if this move and the next are perpendicular, round the last cellSize of this and the first cellSize of that
-  // if needed, add & modify moves
+
+  // round paths by removing straight segments and adding arcs
   commands.forEach((command, i) => {
     if (command.code === "M") {
       curvedCommands.push(command);
-    } else if (i < commands.length - 1) {
+    } else if (i === commands.length - 1) {
+      curvedCommands.push(command);
+    } else {
       const nextCommand = commands[i + 1];
       const arePerpendicular = getArePerpendicular(command, nextCommand);
       if (
@@ -178,20 +177,11 @@ export const calculateRoundedPath = (
           x: newX,
           y: newY,
         });
-
-        // // TODO: remove
-        // curvedCommands.push({
-        //   code: "M",
-        //   x: newX,
-        //   y: newY,
-        // });
       } else {
         curvedCommands.push(command);
       }
     }
   });
-  console.log(commands);
-  console.log(curvedCommands);
 
   return serialize(curvedCommands);
 };
