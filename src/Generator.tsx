@@ -3,7 +3,6 @@ import { generateLabyrinth } from "./generator";
 import "./App.css";
 import type { Labyrinth } from "./generator-types";
 import { getLabyrinthObj } from "./generator-helpers";
-import type { LabyrinthData } from "./labyrinths";
 
 const strokeWidth = 12;
 

@@ -22,6 +22,7 @@ function App() {
   const today = new Date();
   const datesInMonth = getDatesInMonth(today);
   const numberOfEmptyDays = getNumberOfDaysBeforeFirstDayOfMonth(today);
+  const isInDevMode = import.meta.env.DEV;
 
   const onPopNavigation = () => {
     if (window.location.pathname === "/") {
@@ -119,7 +120,7 @@ function App() {
           <Labyrinth puzzleDate={puzzleDate} />
         </div>
       )}
-      <Generator />
+      {isInDevMode && <Generator />}
       <Analytics />
     </>
   );
