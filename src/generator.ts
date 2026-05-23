@@ -6,7 +6,6 @@ import {
   initializeGrid,
   prependToPath,
   prettyPrintGrid,
-  removeLastLine,
 } from "./generator-helpers";
 import { calculateRoundedPath } from "./rounded-path";
 
@@ -17,7 +16,7 @@ export const BORDER = 16; // space around outside of labyrinth
 export const CELL_SIZE = 16; // width & height of each cell
 export const HALF_CELL_SIZE = CELL_SIZE / 2;
 
-const carvePath = (start: Point, end: Point) => {
+const carvePath = (start: Point, end: Point, addToPath = true) => {
   const direction =
     start.col === end.col && start.row > end.row
       ? "up"
@@ -95,7 +94,9 @@ const carvePath = (start: Point, end: Point) => {
       cell.type = getCellType(cell, labyrinth.currentEnd);
     }
   }
-  labyrinth.path = prependToPath(labyrinth.path, start.col, start.row);
+  if (addToPath) {
+    labyrinth.path = prependToPath(labyrinth.path, start.col, start.row);
+  }
 };
 
 const findLeftOptions = () => {
@@ -202,20 +203,19 @@ const findAheadOptions = () => {
 const findAndCarveNextPath = () => {
   const turnOptions = findTurnOptions();
 
-  // if there are no turns that can be made, try to keep moving ahead
-  if (turnOptions.length < 1) {
+  if (turnOptions.length > 0) {
+    const nextEnd = turnOptions[random(turnOptions.length - 1)];
+    carvePath(labyrinth.currentEnd, nextEnd);
+  } else {
+    // if there are no turns that can be made, try to keep moving ahead
     const aheadOptions = findAheadOptions();
 
     // if there are no options to continue straight, stop recursing & exit
     if (aheadOptions.length < 1) return;
 
     const nextEnd = aheadOptions[random(aheadOptions.length - 1)];
-    // remove last line segment from path; it will be replaced with the longer one
-    labyrinth.path = removeLastLine(labyrinth.path);
-    carvePath(labyrinth.currentEnd, nextEnd);
-  } else {
-    const nextEnd = turnOptions[random(turnOptions.length - 1)];
-    carvePath(labyrinth.currentEnd, nextEnd);
+    // don't add this line segment to the svg path; it's redundant with the previously added one
+    carvePath(labyrinth.currentEnd, nextEnd, false);
   }
 
   findAndCarveNextPath();
