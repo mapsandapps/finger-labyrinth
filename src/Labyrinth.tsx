@@ -41,6 +41,7 @@ export default function Labyrinth(props: LabyrinthProps) {
     viewBoxHeight,
     bridges,
     centerCircle,
+    startCircle,
   }: Labyrinth = getLabyrinthForDate(date, true);
 
   const onWin = () => {
@@ -300,24 +301,28 @@ export default function Labyrinth(props: LabyrinthProps) {
             strokeWidth={pathWidth}
             d={path}
           />
-          {centerCircle && (
-            <>
-              <circle
-                cx={centerCircle.cx}
-                cy={centerCircle.cy}
-                r={centerCircle.r || pathWidth / 2}
-                fill={pathColor}
-              />
-              <circle
-                className="center-circle-animated"
-                ref={centerCircleRef}
-                cx={centerCircle.cx}
-                cy={centerCircle.cy}
-                r={0}
-                fill={travelingColor}
-              />
-            </>
-          )}
+          <circle
+            className="start-circle"
+            cx={startCircle.cx}
+            cy={startCircle.cy}
+            r={startCircle.r}
+            fill={travelingColor}
+          />
+          <circle
+            className="center-circle"
+            cx={centerCircle.cx}
+            cy={centerCircle.cy}
+            r={centerCircle.r || pathWidth / 2}
+            fill={pathColor}
+          />
+          <circle
+            className="center-circle-animated"
+            ref={centerCircleRef}
+            cx={centerCircle.cx}
+            cy={centerCircle.cy}
+            r={0}
+            fill={travelingColor}
+          />
           <g id="bridges">
             {bridges?.map((bridge, i) => (
               <polygon

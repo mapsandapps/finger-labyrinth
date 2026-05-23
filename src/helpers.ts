@@ -14,6 +14,7 @@ import {
   type Bridge,
   type Intersection,
   type Labyrinth,
+  type LabyrinthData,
 } from "./labyrinths";
 
 const locale = new Intl.Locale(navigator.language);
@@ -152,20 +153,48 @@ const getBridges = (labyrinth: Labyrinth): Bridge[] => {
   return bridges;
 };
 
+// NOTE: not the same as getCircleCenter
+const getCenterCircle = (labyrinth: LabyrinthData) => {
+  paper.setup(new paper.Size(500, 500));
+
+  const path = new paper.Path(labyrinth.path);
+  const endPoint = path.lastSegment.point;
+  return {
+    cx: labyrinth.centerCircle?.cx || endPoint.x,
+    cy: labyrinth.centerCircle?.cy || endPoint.y,
+    r: labyrinth.centerCircle?.r || labyrinth.pathWidth! / 2,
+  };
+};
+
+const getStartCircle = (labyrinth: LabyrinthData) => {
+  paper.setup(new paper.Size(500, 500));
+
+  const path = new paper.Path(labyrinth.path);
+  const startPoint = path.firstSegment.point;
+  return {
+    cx: startPoint.x,
+    cy: startPoint.y,
+    r: labyrinth.pathWidth! / 2,
+  };
+};
+
 const getLabyrinthFromIndex = (
   index: number,
   isPlayable: boolean,
 ): Labyrinth => {
-  const labyrinth = {
+  const labyrinth: any = {
     ...defaultLabyrinth,
     ...labyrinths[index],
   };
 
   if (isPlayable) labyrinth.bridges = getBridges(labyrinth);
+  labyrinth.centerCircle = getCenterCircle(labyrinth);
+  labyrinth.startCircle = getStartCircle(labyrinth);
 
   return labyrinth;
 };
 
+// NOTE: not the same as getCenterCircle
 const getCircleCenter = (el: SVGCircleElement) => {
   const rect = el.getBoundingClientRect();
   return {

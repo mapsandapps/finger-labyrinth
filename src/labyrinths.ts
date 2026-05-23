@@ -13,10 +13,16 @@ export interface Bridge {
   sideBPolygon?: string;
 }
 
+export interface CenterCircleData {
+  cx?: number;
+  cy?: number;
+  r?: number;
+}
+
 export interface CenterCircle {
   cx: number;
   cy: number;
-  r?: number;
+  r: number;
 }
 
 // "LabyrinthData"s get merged with defaultLabyrinth (a Labyrinth) to create a Labyrinth (i.e. that has all items defined)
@@ -28,7 +34,7 @@ export interface LabyrinthData {
   pathWidth?: number;
   viewBoxWidth?: number;
   viewBoxHeight?: number;
-  centerCircle?: CenterCircle;
+  centerCircle?: CenterCircleData;
 }
 
 export interface Labyrinth {
@@ -40,7 +46,8 @@ export interface Labyrinth {
   viewBoxWidth: number;
   viewBoxHeight: number;
   bridges?: Bridge[];
-  centerCircle?: CenterCircle;
+  startCircle: CenterCircle;
+  centerCircle: CenterCircle;
 }
 
 export const defaultLabyrinth: Labyrinth = {
@@ -80,6 +87,9 @@ export const labyrinths: LabyrinthData[] = [
     pathWidth: 8,
     travelingColor: "#a60000",
     backgroundColor: "#d1d1d1",
+    centerCircle: {
+      r: 28,
+    },
   },
   {
     path: "M136.684 231C136.684 175.155 133.184 115.5 136.684 104C140.184 92.5 146.534 82 158.684 82C170.835 82 180.684 91.8497 180.684 104C180.684 116.15 170.184 123.5 158.684 126C147.184 128.5 101.184 117.5 88.1844 112.5C75.1844 107.5 51.1843 97.5015 51.1843 79C51.1843 60.4985 66.9705 49.5283 82.1844 39C97.3982 28.4717 127.184 13 158.684 22C190.184 31 227.684 125.609 231.184 139.5C234.684 153.391 235.184 161.5 231.184 178C227.184 194.5 220.184 213 207.684 217.5C195.184 222 74.1843 220.5 61.1843 217.5C48.1844 214.5 34.244 213.176 30.6843 199.891C27.1246 186.606 44.3397 169.391 61.1843 169.391C78.029 169.391 87.7969 188.381 91.6843 199.891C95.5718 211.401 95.1844 217.5 95.1844 217.5V231",
@@ -145,6 +155,9 @@ export const labyrinths: LabyrinthData[] = [
     path: "M 136 104 L 136 48 A 8 8 0 0 1 144 40 A 8 8 0 0 0 152 32 A 8 8 0 0 0 144 24 L 128 24 A 8 8 0 0 0 120 32 A 8 8 0 0 1 112 40 L 96 40 A 8 8 0 0 0 88 48 L 88 128 A 8 8 0 0 1 80 136 A 8 8 0 0 0 72 144 L 72 240 A 8 8 0 0 1 64 248 A 8 8 0 0 1 56 240 L 56 224 A 8 8 0 0 1 64 216 L 160 216 A 8 8 0 0 1 168 224 A 8 8 0 0 1 160 232 A 8 8 0 0 1 152 224 L 152 208 A 8 8 0 0 1 160 200 A 8 8 0 0 0 168 192 A 8 8 0 0 0 160 184 L 48 184 A 8 8 0 0 1 40 176 L 40 128 A 8 8 0 0 0 32 120 A 8 8 0 0 0 24 128 A 8 8 0 0 0 32 136 L 48 136 A 8 8 0 0 1 56 144 L 56 192 A 8 8 0 0 0 64 200 L 96 200 A 8 8 0 0 1 104 208 L 104 224 A 8 8 0 0 0 112 232 L 128 232 A 8 8 0 0 0 136 224 L 136 144 A 8 8 0 0 1 144 136 A 8 8 0 0 1 152 144 L 152 160 A 8 8 0 0 1 144 168 L 96 168 A 8 8 0 0 0 88 176 L 88 240 A 8 8 0 0 0 96 248 L 176 248 A 8 8 0 0 0 184 240 L 184 120 L 184 32 A 8 8 0 0 0 176 24 A 8 8 0 0 0 168 32 L 168 80 A 8 8 0 0 1 160 88 L 48 88 A 8 8 0 0 1 40 80 A 8 8 0 0 1 48 72 L 112 72 A 8 8 0 0 1 120 80 L 120 96 A 8 8 0 0 1 112 104 L 64 104 A 8 8 0 0 0 56 112 A 8 8 0 0 0 64 120 L 160 120 A 8 8 0 0 0 168 112 A 8 8 0 0 0 160 104 A 8 8 0 0 1 152 96 L 152 64 A 8 8 0 0 0 144 56 L 112 56 A 8 8 0 0 0 104 64 L 104 136",
     viewBoxWidth: 208,
     viewBoxHeight: 272,
+    backgroundColor: "#283618",
+    pathColor: "#606c38",
+    travelingColor: "#fefae0",
   },
   {
     path: "M 24 24 L 32 24 A 8 8 0 0 1 40 32 A 8 8 0 0 1 32 40 A 8 8 0 0 0 24 48 A 8 8 0 0 0 32 56 L 112 56 A 8 8 0 0 1 120 64 A 8 8 0 0 1 112 72 L 32 72 A 8 8 0 0 0 24 80 L 24 128 A 8 8 0 0 0 32 136 L 96 136 A 8 8 0 0 0 104 128 L 104 112 A 8 8 0 0 1 112 104 L 128 104 A 8 8 0 0 0 136 96 L 136 64 A 8 8 0 0 1 144 56 A 8 8 0 0 1 152 64 L 152 144 A 8 8 0 0 1 144 152 L 80 152 A 8 8 0 0 1 72 144 L 72 48 A 8 8 0 0 1 80 40 L 144 40 A 8 8 0 0 0 152 32 A 8 8 0 0 0 144 24 L 96 24 A 8 8 0 0 0 88 32 L 88 88",
