@@ -2,36 +2,30 @@ import { useState } from "react";
 import { generateLabyrinth } from "./generator";
 import "./App.css";
 import type { Labyrinth } from "./generator-types";
-import { calculateRoundedPath } from "./rounded-path";
 import { getLabyrinthObj } from "./generator-helpers";
+import type { LabyrinthData } from "./labyrinths";
 
 const strokeWidth = 12;
 
 export default function Generator() {
   const [labyrinth, setLabyrinth] = useState<Labyrinth>();
-  const [curvedPath, setCurvedPath] = useState<string>();
+  const [shouldUseRoundedPath, setShouldUseRoundedPath] = useState(false);
 
   const generate = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setCurvedPath(undefined);
-    setLabyrinth(generateLabyrinth());
+    const labyrinth = generateLabyrinth();
+    setLabyrinth(labyrinth);
   };
+
+  const labyrinthObj = getLabyrinthObj(labyrinth, shouldUseRoundedPath);
 
   const toggleRoundedCorners = () => {
-    if (curvedPath || !labyrinth) {
-      setCurvedPath(undefined);
-    } else {
-      setCurvedPath(
-        calculateRoundedPath(labyrinth?.path, labyrinth.cellSize, 1),
-      );
-    }
+    setShouldUseRoundedPath(!shouldUseRoundedPath);
   };
-
-  const labyrinthObj = getLabyrinthObj(labyrinth, curvedPath);
 
   return (
     <>
-      {labyrinth?.path && (
+      {labyrinth && labyrinthObj && (
         <svg
           className="generated-svg"
           viewBox={`0 0 ${labyrinth.width} ${labyrinth.height}`}
@@ -39,7 +33,7 @@ export default function Generator() {
         >
           <g fill="none" fillRule="evenodd">
             <path
-              d={curvedPath || labyrinth.path}
+              d={labyrinthObj.path}
               stroke="black"
               strokeWidth={strokeWidth}
             />
@@ -67,9 +61,7 @@ export default function Generator() {
         />
       )}
       <button onClick={generate}>Generate labyrinth</button>
-      {labyrinth?.roundedPath && (
-        <button onClick={toggleRoundedCorners}>Toggle rounded corners</button>
-      )}
+      <button onClick={toggleRoundedCorners}>Toggle rounded corners</button>
     </>
   );
 }

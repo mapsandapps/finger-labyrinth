@@ -244,6 +244,7 @@ export const generateLabyrinth = (): Labyrinth => {
     cols,
     rows,
     path: "",
+    roundedPath: "",
     currentEnd: grid[centerRow][centerCol],
     // NOTE: size is not changed if some rows/cols are not used
     width: BORDER * 2 + AVAILABLE_COLS * CELL_SIZE,
@@ -260,6 +261,7 @@ export const generateLabyrinth = (): Labyrinth => {
   makeFirstMove();
   findAndCarveNextPath(); // recursive
 
+  // NOTE: leave these logs
   console.log(labyrinth);
   prettyPrintGrid(labyrinth.grid);
 

@@ -10,13 +10,21 @@ import type { LabyrinthData } from "./labyrinths";
 
 export const getLabyrinthObj = (
   labyrinth?: Labyrinth,
-  curvedPath?: string,
+  shouldUseRoundedPath = false,
 ): LabyrinthData => {
+  if (!labyrinth)
+    return {
+      path: "",
+      pathWidth: 8,
+      viewBoxWidth: 0,
+      viewBoxHeight: 0,
+    };
+
   return {
-    path: curvedPath || labyrinth?.path || "",
-    pathWidth: labyrinth?.cellSize ? labyrinth.cellSize - 4 : 8,
-    viewBoxWidth: labyrinth?.width || 0,
-    viewBoxHeight: labyrinth?.height || 0,
+    path: shouldUseRoundedPath ? labyrinth.roundedPath : labyrinth.path,
+    pathWidth: labyrinth.cellSize ? labyrinth.cellSize - 4 : 8,
+    viewBoxWidth: labyrinth.width,
+    viewBoxHeight: labyrinth.height,
   };
 };
 
