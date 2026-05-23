@@ -7,10 +7,11 @@ import {
   prependToPath,
   prettyPrintGrid,
 } from "./generator-helpers";
+import { calculateRoundedPath } from "./rounded-path";
 
 let labyrinth: Labyrinth;
-export const AVAILABLE_COLS = 11;
-export const AVAILABLE_ROWS = 11;
+const AVAILABLE_COLS = 11;
+const AVAILABLE_ROWS = 11;
 export const BORDER = 16; // space around outside of labyrinth
 export const CELL_SIZE = 16; // width & height of each cell
 export const HALF_CELL_SIZE = CELL_SIZE / 2;
@@ -249,6 +250,7 @@ export const generateLabyrinth = (): Labyrinth => {
       cx: BORDER + centerCol * CELL_SIZE + HALF_CELL_SIZE,
       cy: BORDER + centerRow * CELL_SIZE + HALF_CELL_SIZE,
     },
+    cellSize: CELL_SIZE,
   };
   labyrinth.currentEnd.type = "center";
   labyrinth.currentEnd.openUp = true;
@@ -264,11 +266,12 @@ export const generateLabyrinth = (): Labyrinth => {
     BORDER + labyrinth.currentEnd.col * CELL_SIZE + HALF_CELL_SIZE;
   const labyrinthStartY =
     BORDER + labyrinth.currentEnd.row * CELL_SIZE + HALF_CELL_SIZE;
-  labyrinth.path = `M${labyrinthStartX} ${labyrinthStartY} ` + labyrinth.path;
+  labyrinth.path = `M ${labyrinthStartX} ${labyrinthStartY} ` + labyrinth.path;
   labyrinth.startCircle = {
     cx: labyrinthStartX,
     cy: labyrinthStartY,
   };
+  labyrinth.roundedPath = calculateRoundedPath(labyrinth.path, CELL_SIZE);
   return labyrinth;
 };
 

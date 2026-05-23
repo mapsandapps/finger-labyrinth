@@ -38,9 +38,11 @@ export interface Labyrinth {
   cols: number;
   rows: number;
   path: string;
+  roundedPath?: string;
   currentEnd: Cell;
   width: number;
   height: number;
   startCircle?: SvgCircleData;
   endCircle: SvgCircleData;
+  cellSize: number;
 }
