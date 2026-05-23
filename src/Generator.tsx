@@ -20,7 +20,9 @@ export default function Generator() {
     if (curvedPath || !labyrinth) {
       setCurvedPath(undefined);
     } else {
-      setCurvedPath(calculateRoundedPath(labyrinth?.path, labyrinth.cellSize));
+      setCurvedPath(
+        calculateRoundedPath(labyrinth?.path, labyrinth.cellSize, 1),
+      );
     }
   };
 

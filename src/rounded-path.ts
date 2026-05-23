@@ -112,17 +112,65 @@ const getMoreInfoForCommands = (
   return commands;
 };
 
+const smoothCorner = (
+  command: CommandPlus,
+  nextCommand: CommandPlus,
+  curvedCommands: any[],
+  radius: number,
+) => {
+  const direction = command.verticalOrHorizontalDistance > 0 ? 1 : -1;
+  const nextDirection = nextCommand.verticalOrHorizontalDistance > 0 ? 1 : -1;
+  // push segment of command
+  const x = command.isHorizontal ? command.x - radius * direction : command.x;
+  const y = command.isVertical ? command.y - radius * direction : command.y;
+  curvedCommands.push({
+    code: command.code,
+    x,
+    y,
+  });
+  // push arc
+  const newX = command.isHorizontal
+    ? x + radius * direction
+    : x + radius * nextDirection;
+  const newY = command.isVertical
+    ? y + radius * direction
+    : y + radius * nextDirection;
+
+  const sameSign =
+    command.verticalOrHorizontalDistance > 0 ===
+    nextCommand.verticalOrHorizontalDistance > 0;
+  const sweepFlag = command.isHorizontal ? sameSign : !sameSign;
+
+  curvedCommands.push({
+    code: "A",
+    x0: x,
+    y0: y,
+    rx: radius,
+    ry: radius,
+    xAxisRotation: 0,
+    largeArc: false,
+    sweep: sweepFlag,
+    x: newX,
+    y: newY,
+  });
+
+  return curvedCommands;
+};
+
 export const calculateRoundedPath = (
   path: string,
   cellSize: number,
+  maxSizeToRound: 1 | 2 | 3, // 1 rounds all corners slightly; 2 rounds small corners slightly, large corners more; 3 also rounds the next size up to be very rounded. NOTE: only 1 works with bridges in this project
 ): string => {
   const halfCellSize = cellSize / 2;
+  const largeRadius = cellSize + halfCellSize; // used with maxSizeToRound >= 2
+  const hugeRadius = cellSize * 2 + halfCellSize; // used with maxSizeToRound >= 3
   const absolutePath: CommandMadeAbsolute[] = parseSVG(
     path,
   ) as CommandMadeAbsolute[];
   makeAbsolute(absolutePath); // mutates in place
   const commands = getMoreInfoForCommands(absolutePath);
-  const curvedCommands: any[] = [];
+  let curvedCommands: any[] = [];
 
   // round paths by removing straight segments and adding arcs
   commands.forEach((command, i) => {
@@ -134,50 +182,40 @@ export const calculateRoundedPath = (
       const nextCommand = commands[i + 1];
       const arePerpendicular = getArePerpendicular(command, nextCommand);
       if (
+        maxSizeToRound >= 3 &&
+        arePerpendicular &&
+        Math.abs(command.verticalOrHorizontalDistance) >= hugeRadius * 2 &&
+        Math.abs(nextCommand.verticalOrHorizontalDistance) >= hugeRadius * 2
+      ) {
+        curvedCommands = smoothCorner(
+          command,
+          nextCommand,
+          curvedCommands,
+          hugeRadius,
+        );
+      } else if (
+        maxSizeToRound >= 2 &&
+        arePerpendicular &&
+        Math.abs(command.verticalOrHorizontalDistance) >= largeRadius * 2 &&
+        Math.abs(nextCommand.verticalOrHorizontalDistance) >= largeRadius * 2
+      ) {
+        curvedCommands = smoothCorner(
+          command,
+          nextCommand,
+          curvedCommands,
+          largeRadius,
+        );
+      } else if (
         arePerpendicular &&
         Math.abs(command.verticalOrHorizontalDistance) >= halfCellSize &&
         Math.abs(nextCommand.verticalOrHorizontalDistance) >= halfCellSize
       ) {
-        const direction = command.verticalOrHorizontalDistance > 0 ? 1 : -1;
-        const nextDirection =
-          nextCommand.verticalOrHorizontalDistance > 0 ? 1 : -1;
-        // push segment of command
-        const x = command.isHorizontal
-          ? command.x - halfCellSize * direction
-          : command.x;
-        const y = command.isVertical
-          ? command.y - halfCellSize * direction
-          : command.y;
-        curvedCommands.push({
-          code: command.code,
-          x,
-          y,
-        });
-        // push arc
-        const newX = command.isHorizontal
-          ? x + halfCellSize * direction
-          : x + halfCellSize * nextDirection;
-        const newY = command.isVertical
-          ? y + halfCellSize * direction
-          : y + halfCellSize * nextDirection;
-
-        const sameSign =
-          command.verticalOrHorizontalDistance > 0 ===
-          nextCommand.verticalOrHorizontalDistance > 0;
-        const sweepFlag = command.isHorizontal ? sameSign : !sameSign;
-
-        curvedCommands.push({
-          code: "A",
-          x0: x,
-          y0: y,
-          rx: halfCellSize,
-          ry: halfCellSize,
-          xAxisRotation: 0,
-          largeArc: false,
-          sweep: sweepFlag,
-          x: newX,
-          y: newY,
-        });
+        curvedCommands = smoothCorner(
+          command,
+          nextCommand,
+          curvedCommands,
+          halfCellSize,
+        );
       } else {
         curvedCommands.push(command);
       }
