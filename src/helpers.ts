@@ -25,6 +25,12 @@ const firstDayOfWeekForLocale =
       locale.getWeekInfo().firstDay
     : 7;
 
+const getUnPerpendicularness = (angle1: number, angle2: number): number => {
+  let diff = Math.abs((angle2 - angle1) % 360);
+  if (diff > 180) diff = 360 - diff;
+  return Math.abs(90 - (diff % 180));
+};
+
 // Extract a sub-path between two offsets using Paper.js curve splitting
 const extractSubPath = (
   source: paper.Path,
@@ -54,25 +60,28 @@ const extractSubPath = (
   return segment ?? new paper.Path();
 };
 
-const getIntersections = (path: string): Intersection[] => {
+const getIntersections = (path: string, pathWidth: number): Intersection[] => {
   paper.setup(document.createElement("canvas"));
 
   const paperPath = new paper.Path(path);
-  const EXTENSION_PX = 20;
 
   const intersections: Intersection[] = [];
   paperPath.getIntersections(paperPath).forEach((intersection) => {
-    const offset = intersection.offset;
+    const offset = intersection.offset; // how far along the path the intersection is
     const totalLength = paperPath.length;
 
-    const startOffset = offset - EXTENSION_PX;
-    const endOffset = offset + EXTENSION_PX;
-
-    const segmentPath = extractSubPath(
-      paperPath,
-      Math.max(0, startOffset),
-      Math.min(totalLength, endOffset),
+    const unperpendicularness = getUnPerpendicularness(
+      intersection.tangent.angle,
+      intersection.intersection.tangent.angle,
     );
+    // if the path intersects itself at right angles, we only need the bridge to be 1px wider than the path on each side
+    // if the path intersects itself at a more oblique angle, we need a longer bridge
+    const bridgeWidth = pathWidth + Math.max(2, unperpendicularness);
+
+    const startOffset = offset - bridgeWidth;
+    const endOffset = offset + bridgeWidth;
+
+    const segmentPath = extractSubPath(paperPath, startOffset, endOffset);
     intersections.push({
       point: intersection.point,
       angle1: intersection.tangent.angle,
@@ -89,7 +98,7 @@ const getIntersections = (path: string): Intersection[] => {
 };
 
 const getBridges = (labyrinth: Labyrinth): Bridge[] => {
-  const intersections = getIntersections(labyrinth.path);
+  const intersections = getIntersections(labyrinth.path, labyrinth.pathWidth);
   const bridges: Bridge[] = [];
 
   intersections.forEach((intersection) => {
