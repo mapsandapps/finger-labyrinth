@@ -25,17 +25,61 @@ const firstDayOfWeekForLocale =
       locale.getWeekInfo().firstDay
     : 7;
 
+// Extract a sub-path between two offsets using Paper.js curve splitting
+const extractSubPath = (
+  source: paper.Path,
+  startOffset: number,
+  endOffset: number,
+): paper.Path => {
+  // Clone the path so we can split it non-destructively
+  const clone = source.clone({ insert: false }) as paper.Path;
+
+  // Get locations at our two cut points
+  const startLoc = clone.getLocationAt(startOffset);
+  const endLoc = clone.getLocationAt(endOffset);
+
+  if (!startLoc || !endLoc) {
+    clone.remove();
+    return new paper.Path();
+  }
+
+  // Split at end first (splitting changes offsets, so end before start)
+  const afterEnd = clone.splitAt(endLoc) as paper.Path | null;
+  const segment = clone.splitAt(startLoc) as paper.Path | null;
+
+  // After two splits: clone = [0→start], segment = [start→end], afterEnd = [end→∞]
+  clone.remove();
+  afterEnd?.remove();
+
+  return segment ?? new paper.Path();
+};
+
 const getIntersections = (path: string): Intersection[] => {
   paper.setup(document.createElement("canvas"));
 
   const paperPath = new paper.Path(path);
+  const EXTENSION_PX = 20;
 
   const intersections: Intersection[] = [];
-  paperPath.getIntersections(paperPath).forEach((loc) => {
+  paperPath.getIntersections(paperPath).forEach((intersection) => {
+    const offset = intersection.offset;
+    const totalLength = paperPath.length;
+
+    const startOffset = offset - EXTENSION_PX;
+    const endOffset = offset + EXTENSION_PX;
+
+    const segmentPath = extractSubPath(
+      paperPath,
+      Math.max(0, startOffset),
+      Math.min(totalLength, endOffset),
+    );
     intersections.push({
-      point: loc.point,
-      angle1: loc.tangent.angle,
-      angle2: loc.intersection.tangent.angle,
+      point: intersection.point,
+      angle1: intersection.tangent.angle,
+      angle2: intersection.intersection.tangent.angle,
+      path: segmentPath.pathData,
+      offsetOver: intersection.offset,
+      offsetUnder: intersection.intersection.offset,
     });
   });
 
@@ -44,109 +88,15 @@ const getIntersections = (path: string): Intersection[] => {
   return intersections;
 };
 
-const getAngleDifference = (angle1: number, angle2: number): number => {
-  let diff = angle2 - angle1;
-  // normalize to the range [-180, 180]
-  return ((diff + 180) % 360) - 180;
-};
-
-const getDirection = (angle1: number, angle2: number) => {
-  // two sets of path segments can cross visually at the same angle but need different directions. what matters is the "handedness" of the crossing
-  // e.g. if there is a vertical path going from top to bottom with a horizontal path going under it from left to right, it needs a negative direction
-  // and if the horizontal path goes under it from right to left, it needs a positive direction
-  const angleDifference = getAngleDifference(angle1, angle2);
-  if (angleDifference < 0) {
-    return Math.abs(angleDifference) < 180 ? 1 : -1;
-  }
-  return Math.abs(angleDifference) < 180 ? -1 : 1;
-};
-
-const getBridgePolygon = (
-  intersectionData: Intersection,
-  pathWidth: number,
-) => {
-  const WIDTH = pathWidth / 4;
-  // push the far corners of the bridge sides out by this amount:
-  const PARALLELOGRAM_PUSH = 1;
-  const { point, angle1, angle2 } = intersectionData;
-
-  // create a long rectangle to simulate each segment of the labyrinth path
-  const rect1 = new paper.Path.Rectangle({
-    center: point,
-    size: new paper.Size(pathWidth * 5, pathWidth),
-  });
-  rect1.rotate(angle1);
-
-  const rect2 = new paper.Path.Rectangle({
-    center: point,
-    size: new paper.Size(pathWidth * 5, pathWidth),
-  });
-  rect2.rotate(angle2);
-
-  const intersection = rect1.intersect(rect2) as paper.Path;
-
-  // get the corners as SVG polygon points
-  const bridgePolygon = intersection.segments
-    .map((seg) => `${seg.point.x} ${seg.point.y}`)
-    .join(" ");
-
-  // to calculate the side polygons, take two corners of the bridge and extend them out and to each side
-  const { point: pointA } = intersection.segments[0];
-  const { point: pointB } = intersection.segments[1];
-  const { point: pointC } = intersection.segments[2];
-  const { point: pointD } = intersection.segments[3];
-
-  const sideADirection = getDirection(angle1, angle2);
-  const sideBDirection = sideADirection * -1;
-
-  const angle1Rad = angle1 * (Math.PI / 180);
-  const angle2Rad = angle2 * (Math.PI / 180);
-
-  const xAdjust = Math.cos(angle2Rad) * WIDTH;
-  const yAdjust = Math.sin(angle2Rad) * WIDTH;
-  const xPush = Math.cos(angle1Rad) * PARALLELOGRAM_PUSH;
-  const yPush = Math.sin(angle1Rad) * PARALLELOGRAM_PUSH;
-  const newPointA = new paper.Point(
-    pointA.x + xAdjust * sideADirection - xPush,
-    pointA.y + yAdjust * sideADirection - yPush,
-  );
-  const newPointB = new paper.Point(
-    pointB.x + xAdjust * sideADirection + xPush,
-    pointB.y + yAdjust * sideADirection + yPush,
-  );
-
-  const sideAPolygon = `${pointA.x} ${pointA.y} ${pointB.x} ${pointB.y} ${newPointB.x} ${newPointB.y} ${newPointA.x} ${newPointA.y}`;
-
-  // same for sideBPolygon, with the other two points of the bridge
-  const newPointC = new paper.Point(
-    pointC.x + xAdjust * sideBDirection + xPush,
-    pointC.y + yAdjust * sideBDirection + yPush,
-  );
-  const newPointD = new paper.Point(
-    pointD.x + xAdjust * sideBDirection - xPush,
-    pointD.y + yAdjust * sideBDirection - yPush,
-  );
-  const sideBPolygon = `${pointC.x} ${pointC.y} ${pointD.x} ${pointD.y} ${newPointD.x} ${newPointD.y} ${newPointC.x} ${newPointC.y}`;
-
-  rect1.remove();
-  rect2.remove();
-
-  return { bridgePolygon, sideAPolygon, sideBPolygon };
-};
-
 const getBridges = (labyrinth: Labyrinth): Bridge[] => {
   const intersections = getIntersections(labyrinth.path);
   const bridges: Bridge[] = [];
 
   intersections.forEach((intersection) => {
-    const { bridgePolygon, sideAPolygon, sideBPolygon } = getBridgePolygon(
-      intersection,
-      labyrinth.pathWidth,
-    );
     bridges.push({
-      bridgePolygon,
-      sideAPolygon,
-      sideBPolygon,
+      path: intersection.path,
+      offsetOver: intersection.offsetOver,
+      offsetUnder: intersection.offsetUnder,
     });
   });
 
