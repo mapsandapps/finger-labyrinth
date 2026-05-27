@@ -65,7 +65,6 @@ function App() {
               backgroundColor,
               path,
               pathColor,
-              pathWidth,
               viewBoxWidth,
               viewBoxHeight,
             } = getLabyrinthForDate(date, false);
@@ -88,11 +87,7 @@ function App() {
                       preserveAspectRatio="xMidYMid meet"
                     >
                       <g fill="none" fillRule="evenodd">
-                        <path
-                          d={path}
-                          stroke={pathColor}
-                          strokeWidth={pathWidth}
-                        />
+                        <path d={path} stroke={pathColor} strokeWidth="4" />
                       </g>
                     </svg>
                   </div>

@@ -8,10 +8,7 @@ import type {
 } from "./generator-types";
 import type { LabyrinthData } from "./labyrinths";
 
-export const getLabyrinthObj = (
-  labyrinth?: Labyrinth,
-  shouldUseRoundedPath = false,
-): LabyrinthData => {
+export const getLabyrinthObj = (labyrinth?: Labyrinth): LabyrinthData => {
   if (!labyrinth)
     return {
       path: "",
@@ -21,7 +18,8 @@ export const getLabyrinthObj = (
     };
 
   return {
-    path: shouldUseRoundedPath ? labyrinth.roundedPath : labyrinth.path,
+    path: labyrinth.path,
+    roundedPath: labyrinth.roundedPath,
     pathWidth: labyrinth.cellSize ? labyrinth.cellSize - 4 : 8,
     viewBoxWidth: labyrinth.width,
     viewBoxHeight: labyrinth.height,

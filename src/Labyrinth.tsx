@@ -312,7 +312,7 @@ export default function Labyrinth(props: LabyrinthProps) {
                 <path
                   className="bridge-bridge"
                   stroke={IS_IN_DEBUG_MODE ? "red" : backgroundColor}
-                  strokeWidth={pathWidth + 4}
+                  strokeWidth={pathWidth + 4.1}
                   d={bridge.path}
                   ref={(ref) => {
                     if (ref) {
@@ -361,7 +361,7 @@ export default function Labyrinth(props: LabyrinthProps) {
         <button
           className="close-button"
           onClick={onExit}
-          style={{ color: travelingColor }}
+          style={{ color: pathColor }}
         >
           ⬅
         </button>

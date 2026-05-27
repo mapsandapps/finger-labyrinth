@@ -16,7 +16,7 @@ export default function Generator() {
     setLabyrinth(labyrinth);
   };
 
-  const labyrinthObj = getLabyrinthObj(labyrinth, shouldUseRoundedPath);
+  const labyrinthObj = getLabyrinthObj(labyrinth);
 
   const toggleRoundedCorners = () => {
     setShouldUseRoundedPath(!shouldUseRoundedPath);
@@ -32,7 +32,11 @@ export default function Generator() {
         >
           <g fill="none" fillRule="evenodd">
             <path
-              d={labyrinthObj.path}
+              d={
+                shouldUseRoundedPath
+                  ? labyrinthObj.roundedPath
+                  : labyrinthObj.path
+              }
               stroke="black"
               strokeWidth={strokeWidth}
             />
