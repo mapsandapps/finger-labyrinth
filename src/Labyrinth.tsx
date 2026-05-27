@@ -325,7 +325,7 @@ export default function Labyrinth(props: LabyrinthProps) {
                   className="bridge-path"
                   stroke={pathColor} // NOTE: changed via JS
                   strokeWidth={pathWidth}
-                  d={bridge.path}
+                  d={bridge.bridgePath}
                   pointerEvents="none"
                 />
               </g>

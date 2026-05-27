@@ -68,7 +68,6 @@ const getIntersections = (path: string, pathWidth: number): Intersection[] => {
   const intersections: Intersection[] = [];
   paperPath.getIntersections(paperPath).forEach((intersection) => {
     const offset = intersection.offset; // how far along the path the intersection is
-    const totalLength = paperPath.length;
 
     const unperpendicularness = getUnPerpendicularness(
       intersection.tangent.angle,
@@ -76,17 +75,24 @@ const getIntersections = (path: string, pathWidth: number): Intersection[] => {
     );
     // if the path intersects itself at right angles, we only need the bridge to be 1px wider than the path on each side
     // if the path intersects itself at a more oblique angle, we need a longer bridge
-    const bridgeWidth = pathWidth + Math.max(2, unperpendicularness);
+    const bridgeWidth = pathWidth + Math.max(2, unperpendicularness * 1.2);
 
-    const startOffset = offset - bridgeWidth;
-    const endOffset = offset + bridgeWidth;
+    const startOffset = offset - bridgeWidth / 2;
+    const endOffset = offset + bridgeWidth / 2;
 
     const segmentPath = extractSubPath(paperPath, startOffset, endOffset);
+    // the path part of the bridge needs to be a tiny bit wider than the bridge sides, so there isn't a sub-pixel border showing sometimes
+    const bridgeSegmentPath = extractSubPath(
+      paperPath,
+      startOffset - 0.1,
+      endOffset + 0.1,
+    );
     intersections.push({
       point: intersection.point,
       angle1: intersection.tangent.angle,
       angle2: intersection.intersection.tangent.angle,
       path: segmentPath.pathData,
+      bridgePath: bridgeSegmentPath.pathData,
       offsetOver: intersection.offset,
       offsetUnder: intersection.intersection.offset,
     });
@@ -104,6 +110,7 @@ const getBridges = (labyrinth: Labyrinth): Bridge[] => {
   intersections.forEach((intersection) => {
     bridges.push({
       path: intersection.path,
+      bridgePath: intersection.bridgePath,
       offsetOver: intersection.offsetOver,
       offsetUnder: intersection.offsetUnder,
     });

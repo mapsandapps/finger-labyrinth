@@ -6,6 +6,7 @@ export interface Intersection {
   angle1: number; // degrees
   angle2: number; // degrees
   path: string;
+  bridgePath: string;
   offsetOver: number;
   offsetUnder: number;
 }
@@ -36,6 +37,7 @@ export interface LabyrinthData {
 
 export interface Bridge {
   path: string;
+  bridgePath: string;
   offsetOver: number;
   offsetUnder: number;
 }
