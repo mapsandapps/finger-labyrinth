@@ -22,9 +22,9 @@ export default function Labyrinth(props: LabyrinthProps) {
   const [pathAnimation, setPathAnimation] = useState<Animation>();
   const [circleAnimation, setCircleAnimation] = useState<Animation>();
   const [circleEl, setCircleEl] = useState<SVGCircleElement | null>(null);
-  // needs to be a ref so it won't be stale in looped functions
-  const isAnimatingRef = useRef(false);
-  const hasWonRef = useRef(false);
+  const isAnimatingRef = useRef(false); // needs to be a ref so it won't be stale in looped functions
+  const hasWonRef = useRef(false); // needs to be a ref so it won't be stale in looped functions
+  const [hasWon, setHasWon] = useState(false); // also need it in state
   const activeTouchesRef = useRef<React.Touch[]>([]);
   const currentLocationRef = useRef<SVGCircleElement>(null);
   const centerCircleRef = useRef<SVGCircleElement>(null);
@@ -47,7 +47,11 @@ export default function Labyrinth(props: LabyrinthProps) {
 
   const onWin = () => {
     hasWonRef.current = true;
+    setHasWon(true);
     addDateToLocalStorage(date);
+  };
+
+  const onExit = () => {
     window.history.pushState({}, "", "/");
     window.location.reload();
   };
@@ -257,7 +261,7 @@ export default function Labyrinth(props: LabyrinthProps) {
   );
 
   return (
-    <>
+    <div className="labyrinth">
       <svg
         className="labyrinth-svg"
         xmlns="http://www.w3.org/2000/svg"
@@ -307,7 +311,7 @@ export default function Labyrinth(props: LabyrinthProps) {
               <g id={`bridge-${i}`} key={`bridge-${i}`}>
                 <path
                   className="bridge-bridge"
-                  stroke={backgroundColor}
+                  stroke={IS_IN_DEBUG_MODE ? "red" : backgroundColor}
                   strokeWidth={pathWidth + 4}
                   d={bridge.path}
                   ref={(ref) => {
@@ -353,6 +357,15 @@ export default function Labyrinth(props: LabyrinthProps) {
           <g id="high-bridges" />
         </g>
       </svg>
-    </>
+      {hasWon && (
+        <button
+          className="close-button"
+          onClick={onExit}
+          style={{ color: travelingColor }}
+        >
+          ⬅
+        </button>
+      )}
+    </div>
   );
 }
