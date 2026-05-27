@@ -22,13 +22,14 @@ export default function Labyrinth(props: LabyrinthProps) {
   const [pathAnimation, setPathAnimation] = useState<Animation>();
   const [circleAnimation, setCircleAnimation] = useState<Animation>();
   const [circleEl, setCircleEl] = useState<SVGCircleElement | null>(null);
-  // needs to be a ref so it won't be stale in looped functions
-  const isAnimatingRef = useRef(false);
-  const hasWonRef = useRef(false);
+  const isAnimatingRef = useRef(false); // needs to be a ref so it won't be stale in looped functions
+  const hasWonRef = useRef(false); // needs to be a ref so it won't be stale in looped functions
+  const [hasWon, setHasWon] = useState(false); // also need it in state
   const activeTouchesRef = useRef<React.Touch[]>([]);
   const currentLocationRef = useRef<SVGCircleElement>(null);
   const centerCircleRef = useRef<SVGCircleElement>(null);
-  const bridgeRefs = useRef<SVGPolygonElement[]>([]);
+  const bridgeRefs = useRef<SVGPathElement[]>([]);
+  const pathRef = useRef<SVGPathElement>(null);
   const date = puzzleDate || new Date();
 
   const {
@@ -46,7 +47,11 @@ export default function Labyrinth(props: LabyrinthProps) {
 
   const onWin = () => {
     hasWonRef.current = true;
+    setHasWon(true);
     addDateToLocalStorage(date);
+  };
+
+  const onExit = () => {
     window.history.pushState({}, "", "/");
     window.location.reload();
   };
@@ -85,70 +90,53 @@ export default function Labyrinth(props: LabyrinthProps) {
     }
   };
 
-  const onCircleCrossingBridge = (i: number) => {
-    // the circle crosses each bridge twice on the way in and twice on the way out
-    // when the direction is "in", the bridges can stay transparent. the circle will go over & under each bridge, and the path will filled at the appropriate time
-    // if the direction is "out" and the circle is about to cross a bridge for the 1st time, it will be going under the bridge. the bridge should be set to travelingColor
-    // if the direction is "out" and the circle is about to cross a bridge for the 2nd time, it will be going over the bridge. the bridge should be transparent
+  // this should trigger after the circle has crossed over the bridge, while it's on its way to the middle of the labyrinth
+  const afterCrossingOverBridgeIn = (i: number) => {
     const bridge = document.getElementById(`bridge-${i}`)!;
-    const bridges = document.getElementById("bridges")!;
-
-    if (direction === "in") {
-      // only relevant in debug mode, but doesn't hurt to do all the time:
-      bridge.setAttribute("fill", "transparent");
-    } else {
-      if (bridge.getAttribute("fill") === "transparent") {
-        // 1st crossing, going under the bridge
-        bridge.setAttribute("fill", travelingColor);
-        // push bridge to front so we can go under it
-        const parent = bridges.parentNode;
-        parent?.appendChild(bridge);
-      } else {
-        // 2nd crossing, going over the bridge
-        bridge.setAttribute("fill", "transparent");
-        // move bridge back so we can go over it
-        bridges?.appendChild(bridge);
-      }
-    }
+    const highBridges = document.getElementById("high-bridges")!;
+    const bridgePath = document.querySelector(`#bridge-${i} .bridge-path`)!;
+    bridgePath.setAttribute("stroke", travelingColor);
+    // move bridge to the front so we can go under it
+    highBridges.appendChild(bridge);
   };
 
-  const isAlreadyTouching = bridges?.map(() => false);
+  // this should trigger after the circle has crossed under the bridge, while it's on its way out from middle of the labyrinth
+  const afterCrossingUnderBridgeOut = (i: number) => {
+    const bridge = document.getElementById(`bridge-${i}`)!;
+    const lowBridges = document.getElementById("low-bridges")!;
+    const bridgePath = document.querySelector(`#bridge-${i} .bridge-path`)!;
 
-  // TODO: we could change how this function works to calculate based on their bridge's position not its bounding box
-  const getIsCircleTouchingBridge = (bridge: SVGPolygonElement) => {
-    const BUFFER = 0;
-    if (!currentLocationRef.current) return false;
-
-    const circleRect = currentLocationRef.current.getBoundingClientRect();
-    const bridgeRect = bridge.getBoundingClientRect();
-
-    const cx = circleRect.left + circleRect.width / 2;
-    const cy = circleRect.top + circleRect.height / 2;
-    const radius = circleRect.width / 2 + BUFFER;
-
-    const nearestX = Math.max(bridgeRect.left, Math.min(cx, bridgeRect.right));
-    const nearestY = Math.max(bridgeRect.top, Math.min(cy, bridgeRect.bottom));
-
-    const dx = cx - nearestX;
-    const dy = cy - nearestY;
-    return Math.sqrt(dx * dx + dy * dy) <= radius;
+    // move bridge back so we can go over it
+    lowBridges.appendChild(bridge);
+    bridgePath.setAttribute("stroke", pathColor);
   };
 
-  // this calls itself
   const checkForCircleCrossingBridges = () => {
     if (!isAnimatingRef.current || hasWonRef.current) return;
+    // the distance between BUFFER & FINISHED_BUFFER is where the circle will trigger as being about to go over/under a bridge or as having finished going over/under a bridge
+    const BUFFER = 6;
+    const FINISHED_BUFFER = 20;
 
-    // see if circle is about to cross over/under a bridge
-    bridgeRefs.current.forEach((bridge, i) => {
-      if (!isAlreadyTouching) return;
+    const percent = pathAnimation?.overallProgress || 0;
+    const pathLength = pathRef.current!.getTotalLength();
+    const distanceAlongPath =
+      direction === "in" ? percent * pathLength : (1 - percent) * pathLength;
 
-      const isTouching = getIsCircleTouchingBridge(bridge);
-
-      if (isTouching && !isAlreadyTouching[i]) {
-        onCircleCrossingBridge(i);
+    bridges?.forEach((bridge, i) => {
+      if (
+        direction === "in" &&
+        distanceAlongPath >= bridge.offsetOver + FINISHED_BUFFER &&
+        distanceAlongPath <= bridge.offsetOver + FINISHED_BUFFER + BUFFER
+      ) {
+        afterCrossingOverBridgeIn(i);
       }
-
-      isAlreadyTouching[i] = isTouching;
+      if (
+        direction === "out" &&
+        distanceAlongPath <= bridge.offsetUnder - FINISHED_BUFFER &&
+        distanceAlongPath >= bridge.offsetUnder - FINISHED_BUFFER - BUFFER
+      ) {
+        afterCrossingUnderBridgeOut(i);
+      }
     });
 
     requestAnimationFrame(checkForCircleCrossingBridges);
@@ -273,7 +261,7 @@ export default function Labyrinth(props: LabyrinthProps) {
   );
 
   return (
-    <>
+    <div className="labyrinth">
       <svg
         className="labyrinth-svg"
         xmlns="http://www.w3.org/2000/svg"
@@ -291,13 +279,8 @@ export default function Labyrinth(props: LabyrinthProps) {
         <g fill="none" fillRule="evenodd">
           <path
             id="path-floor"
+            ref={pathRef}
             stroke={pathColor}
-            strokeWidth={pathWidth}
-            d={path}
-          />
-          <path
-            ref={initPath}
-            stroke={travelingColor}
             strokeWidth={pathWidth}
             d={path}
           />
@@ -323,23 +306,37 @@ export default function Labyrinth(props: LabyrinthProps) {
             r={0}
             fill={travelingColor}
           />
-          <g id="bridges">
+          <g id="low-bridges">
             {bridges?.map((bridge, i) => (
-              <polygon
-                id={`bridge-${i}`}
-                key={`bridge-${i}`}
-                points={bridge.bridgePolygon}
-                // fill is set in onCircleCrossingBridge()
-                fill={IS_IN_DEBUG_MODE ? "#d0000050" : "transparent"}
-                ref={(ref) => {
-                  if (ref) {
-                    bridgeRefs.current[i] = ref;
-                  }
-                }}
-                pointerEvents="none"
-              />
+              <g id={`bridge-${i}`} key={`bridge-${i}`}>
+                <path
+                  className="bridge-bridge"
+                  stroke={IS_IN_DEBUG_MODE ? "red" : backgroundColor}
+                  strokeWidth={pathWidth + 4}
+                  d={bridge.path}
+                  ref={(ref) => {
+                    if (ref) {
+                      bridgeRefs.current[i] = ref;
+                    }
+                  }}
+                  pointerEvents="none"
+                />
+                <path
+                  className="bridge-path"
+                  stroke={pathColor} // NOTE: changed via JS
+                  strokeWidth={pathWidth}
+                  d={bridge.bridgePath}
+                  pointerEvents="none"
+                />
+              </g>
             ))}
           </g>
+          <path
+            ref={initPath}
+            stroke={travelingColor}
+            strokeWidth={pathWidth}
+            d={path}
+          />
           <g
             ref={initCircle}
             r="36"
@@ -356,31 +353,19 @@ export default function Labyrinth(props: LabyrinthProps) {
               fill={travelingColor}
             />
           </g>
-
-          {bridges?.map((bridge, i) => (
-            <React.Fragment key={`bridge-sides-${i}`}>
-              {bridge.sideAPolygon && (
-                <polygon
-                  points={bridge.sideAPolygon}
-                  fill={backgroundColor}
-                  stroke={IS_IN_DEBUG_MODE ? "green" : "none"}
-                  strokeWidth={IS_IN_DEBUG_MODE ? "0.5" : 0}
-                  pointerEvents="none"
-                />
-              )}
-              {bridge.sideBPolygon && (
-                <polygon
-                  points={bridge.sideBPolygon}
-                  fill={backgroundColor}
-                  stroke={IS_IN_DEBUG_MODE ? "red" : "none"}
-                  strokeWidth={IS_IN_DEBUG_MODE ? "0.5" : 0}
-                  pointerEvents="none"
-                />
-              )}
-            </React.Fragment>
-          ))}
+          {/* NOTE: bridges move between here and #low-bridges as a sort of z-indexing */}
+          <g id="high-bridges" />
         </g>
       </svg>
-    </>
+      {hasWon && (
+        <button
+          className="close-button"
+          onClick={onExit}
+          style={{ color: travelingColor }}
+        >
+          ⬅
+        </button>
+      )}
+    </div>
   );
 }
