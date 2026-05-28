@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "frame-ancestors 'self' https://mapsandapps.itch.io;"
+          "value": "frame-ancestors 'self' https://mapsandapps.itch.io https://mapsandapps.itch.io/secret-jam-finger-labyrinth;"
         },
         {
           "key": "X-Frame-Options",
